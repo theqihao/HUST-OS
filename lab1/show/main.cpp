@@ -1,14 +1,12 @@
-#include <qapplication.h>
-#include <qpushbutton.h>
-int main( int argc, char **argv )
+#include <QPushButton>
+#include <QApplication>
+
+int main(int argc, char *argv[])
 {
-	QApplication a( argc, argv );
+    QApplication app(argc, argv);
 
-	QPushButton hello( "Hello world!", 0 );
-	hello.resize( 100, 30 );
-
-	a.setMainWidget( &hello );
-	hello.show();
-	return a.exec();
+    QPushButton btn("hello world");
+    btn.resize(200,100);
+    btn.show();
+    return app.exec();
 }
-

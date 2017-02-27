@@ -1,3 +1,4 @@
 qmake -project
+echo "QT += widgets" >> show.pro
 qmake
 make
