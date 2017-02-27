@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void copy(char* dest, char* src) {
+    FILE* fi = fopen(src, "r");
+    FILE* fo = fopen(dest, "w");
+    if (fi == NULL) {
+        printf("open %s failed!\n", src);
+        return ;
+    }
+    if (fo == NULL) {
+        printf("open %s failed!\n", dest);
+        return ;
+    }
+    char c;
+    // fread返回读取的字节数,如果返回0，说明读到了文件尾
+    while (fread(&c, sizeof(c), 1, fi)) {
+        fwrite(&c, sizeof(c), 1, fo);
+    }
+    fclose(fi);
+    fclose(fo);
+}
+
+int main()
+{
+    printf("Hello world!\n");
+   // copy("out.txt", "in.txt");
+    copy("out.txt", "main.c");
+    return 0;
+}hjsh
