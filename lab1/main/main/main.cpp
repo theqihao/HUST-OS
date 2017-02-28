@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "showsum.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
@@ -7,5 +8,7 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
+    ShowSum s;
+    s.show();
     return a.exec();
 }
