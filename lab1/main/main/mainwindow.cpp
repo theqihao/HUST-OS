@@ -22,7 +22,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QPalette pelette;
     pelette.setColor(QPalette::WindowText,Qt::red);
     label->setPalette(pelette);
-
     label->setGeometry(QRect(30, 30, 400, 50)); //设local, size
 }
 

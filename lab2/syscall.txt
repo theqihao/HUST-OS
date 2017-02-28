@@ -1,0 +1,34 @@
+https://www.kernel.org/
+1:linux
+2:patch
+apt-get install kernel-package build-essential libncurses5-dev fakeroot
+sudo apt-get install libssl-dev
+xz -d linux-4.5.tar.xz
+tar -xvf linux-4.5.tar
+
+把内核目录linux-4.5和补丁patch-4.5.xz都复制到/usr/src，然后进入/usr/src 
+cp linux-4.5 /usr/src –rf
+cp patch-4.5.xz /usr/src
+cd /usr/src
+
+
+1.打内核补丁
+xz -d patch-4.5.xz | patch -p1
+执行后没有任何提示说明执行正确
+
+
+
+以root身份进入/usr/src/linux目录，重建内核
+#make mrproper //清除之前编译信息，避免生成的文件不一致
+#make oldconfig //配置内核与当前配置相同
+	make config              基于文本的传统配置界面
+	make menuconfig    基于文本的菜单形式，字符终端下使用
+	make xconfig     基于图形窗口模式，Xwindow下使用
+#make               //编译内核
+#make modules_install //生成并安装模块
+#make install    //安装新的系统
+
+重启选用新内核，同启动管理相关
+Grub    update-grub
+reboot
+
