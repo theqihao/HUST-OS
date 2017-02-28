@@ -14,10 +14,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    showsum.cpp
+    showsum.cpp \
+    showcpu.cpp
 
 HEADERS  += mainwindow.h \
-    showsum.h
+    showsum.h \
+    showcpu.h
 
 FORMS    += mainwindow.ui \
-    showsum.ui
+    showsum.ui \
+    showcpu.ui

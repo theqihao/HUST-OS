@@ -1,11 +1,12 @@
-#include "showsum.h"
-#include "ui_showsum.h"
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 
-ShowSum::ShowSum(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ShowSum)
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     this->setWindowTitle("show sum");
     this->resize(500, 100);  // size
     // init
@@ -26,10 +27,9 @@ ShowSum::ShowSum(QWidget *parent) :
     label->setPalette(pelette);
     label->setGeometry(QRect(30, 30, 400, 50)); //设local, size
     label->setText("Loading........");
-
 }
 
-void ShowSum::get_sum()
+void MainWindow::get_sum()
 {
     if (i <= 100) {
         sum += i;
@@ -60,7 +60,7 @@ void ShowSum::get_sum()
     label->setText(final_str);
 }
 
-ShowSum::~ShowSum()
+MainWindow::~MainWindow()
 {
     delete ui;
     delete label;

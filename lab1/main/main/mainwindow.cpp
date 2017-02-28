@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     label_font.setBold(true);
     label->setFont(label_font);
     QPalette pelette;
-    pelette.setColor(QPalette::WindowText,Qt::green);
+    pelette.setColor(QPalette::WindowText,Qt::red);
     label->setPalette(pelette);
 
     label->setGeometry(QRect(30, 30, 400, 50)); //设local, size
@@ -36,7 +36,7 @@ void MainWindow::setText()
     // localtime()间---> trans to local time
     local = localtime(&t);
     char s[100];
-    sprintf(s, "Local time is : %02d:%02d:%02d\n", local->tm_hour, local->tm_min, local->tm_sec);
+    sprintf(s, "Now time is: %02d:%02d:%02d\n", local->tm_hour, local->tm_min, local->tm_sec);
     label->setText(s);
 }
 

@@ -1,7 +1,7 @@
-#ifndef SHOWSUM_H
-#define SHOWSUM_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-#include <QDialog>
+#include <QMainWindow>
 #include <QTimer>
 #include <QLabel>
 #include <QString>
@@ -13,19 +13,20 @@ using namespace std;
 
 
 namespace Ui {
-class ShowSum;
+class MainWindow;
 }
 
-class ShowSum : public QDialog
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
     
 public:
-    explicit ShowSum(QWidget *parent = 0);
-    ~ShowSum();
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
     
 private:
-    Ui::ShowSum *ui;
+    Ui::MainWindow *ui;
+
     QLabel *label;
     QTimer *timer;
 
@@ -35,4 +36,6 @@ private slots:
     void get_sum();
 };
 
-#endif // SHOWSUM_H
+
+
+#endif // MAINWINDOW_H
