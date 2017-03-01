@@ -1,49 +1,37 @@
-/*
-void copy(char* dest, char* src) {
-    FILE* fi = fopen(src, "r");
-    FILE* fo = fopen(dest, "w");
-    if (fi == NULL) {
-        printf("open %s failed!\n", src);
-        return ;
-    }
-    if (fo == NULL) {
-        printf("open %s failed!\n", dest);
-        return ;
-    }
-    char c;
-    // fread返回读取的字节数,如果返回0，说明读到了文件尾
-    while (fread(&c, sizeof(c), 1, fi)) {
-        fwrite(&c, sizeof(c), 1, fo);
-    }
-    fclose(fi);
-    fclose(fo);
+#include <syscall.h>
+int main() {
+	syscall(666, "out.txt", "main.c");
+	return 0;
 }
 
-*/
+
+
 /*
 
 asmlinkage long sys_qihao(char *dest, char *src)
 {
 	printk("Hello qihao\n");
+	int size = 1024;
 	int fi = sys_open(src, O_RDONLY, 0);
-	// if existed, delete
+	// if existed, delete 
 	int fo = sys_open(dest, O_CREAT | O_RDWR | O_TRUNC, 0666);
 	if (fi <= 0 || fo <= 0) {
 		printk("open file error\n");
 	}
-	char buf[64];
-	while (sys_read(fi, buf, 64) > 0) {
-		sys_write(fo, buf, 64);
-	}
+	// buf is __user, 这个指针应该指向空的内存，如果传递kernel空间的指针，会错 
+	mm_segment_t old_fs;
+	old_fs = get_fs();
+	set_fs(KERNEL_DS);
+
+	char buf[size];
+	int num;
+	do {
+		num = sys_read(fi, buf, size);
+		sys_write(fo, buf, num);
+	} while(num > 0);
 	sys_close(fi);
 	sys_close(fo);
+	set_fs(old_fs);
 	return 0;
 }
 */
-
-#include <syscall.h>
-#include <stdlib.h>
-int main() {
-	syscall(666, "out.txt", "main.c");
-	return 0;
-}
