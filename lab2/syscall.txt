@@ -25,8 +25,13 @@ xz -d patch-4.5.xz | patch -p1
 	make menuconfig    基于文本的菜单形式，字符终端下使用
 	make xconfig     基于图形窗口模式，Xwindow下使用
 #make -j8         //编译内核
-#make modules_install //生成并安装模块
-#make install    //安装新的系统
+#make modules_install -j8//生成并安装模块
+#make install -j8   //安装新的系统
+
+
+/*make clean && make dep bzImage modules modules_install*/
+/*make bzImage；make modules；make module_install; make install  */
+
 
 重启选用新内核，同启动管理相关
 update-grub
@@ -58,6 +63,10 @@ asmlinkage long sys_qihao(char *dest, char *src);
 #endif
 linux-4.4.52/kernel/sys.c
 /*
+code
+*/
+
+/*
 void copy(char* dest, char* src) {
     FILE* fi = fopen(src, "r");
     FILE* fo = fopen(dest, "w");
@@ -84,18 +93,27 @@ void copy(char* dest, char* src) {
 asmlinkage long sys_qihao(char *dest, char *src)
 {
 	printk("Hello qihao\n");
+	int size = 1024;
 	int fi = sys_open(src, O_RDONLY, 0);
-	// if existed, delete
+	/* if existed, delete */
 	int fo = sys_open(dest, O_CREAT | O_RDWR | O_TRUNC, 0666);
 	if (fi <= 0 || fo <= 0) {
 		printk("open file error\n");
 	}
-	char buf[64];
-	while (sys_read(fi, buf, 64) > 0) {
-		sys_write(fo, buf, 64);
-	}
+	/* buf is __user, 这个指针应该指向空的内存，如果传递kernel空间的指针，会错 */
+	mm_segment_t old_fs;
+	old_fs = get_fs();
+	set_fs(KERNEL_DS);
+
+	char buf[size];
+	int num;
+	do {
+		num = sys_read(fi, buf, size);
+		sys_write(fo, buf, num);
+	} while(num > 0);
 	sys_close(fi);
 	sys_close(fo);
+	set_fs(old_fs);
 	return 0;
 }
 
