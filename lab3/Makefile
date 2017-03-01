@@ -13,6 +13,6 @@ all:
 	$(MAKE) -C $(KDIR) M=$(PWD)
 	
 clean:
-	rm -rf *.ko *.o *.mod.o *.mod.c *~
+	rm -rf *.ko *.o *.mod.o *.mod.c *~ moudles.* Module.*
 	
 endif
