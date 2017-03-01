@@ -1,14 +1,18 @@
-CC = gcc
-#CFLAGS = -O -Wall -g
-CFLAGS = -O -w -g
-OBJ = main.o 
+ifneq ($(KERNELRELEASE), )
+	#模块文件组成
+	mymodule-objs := mychar.o
+	#生成模块文件名
+	obj-m := mychar.o
+else
+	PWD := $(shell pwd)
+	KVER := $(shell uname -r)
+	KDIR := /lib/modules/$(KVER)/build
 
-qihao: $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o qihao 
 
-main.o: 
-
-#clean
-.PHONY : clean
-clean: 
-	-rm -f *.o *~
+all:
+	$(MAKE) -C $(KDIR) M=$(PWD)
+	
+clean:
+	rm -rf *.ko *.o *.mod.o *.mod.c *~
+	
+endif
