@@ -75,11 +75,18 @@ void MainWindow::addBasicInfo() {
     sprintf(temp, "\tMemory       :   %.1lfGiB\n\n", 1.0 * size / 1024 / 1024);
     final += QString(temp);
 
+    // version issue
+    fp = fopen("/etc/issue", "r");
+    if (fp == NULL) cout << "open issue error" << endl;
+    fread(buf, sizeof(buf), 1, fp);
+    sprintf(temp, "\tIssue num    :   %.18s\n\n", buf);
+    final += QString(temp);
+
     // version info
     fp = popen("cat /proc/version", "r");
     if (fp == NULL) cout << "open version error" << endl;
     fread(buf, sizeof(buf), 1, fp);
-    sprintf(temp, "\tVersion num  :   %.20s\n\n", buf);
+    sprintf(temp, "\tKernel num   :   %.20s\n\n", buf);
     final += QString(temp);
 
     // open time
