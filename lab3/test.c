@@ -1,24 +1,25 @@
 #include <stdio.h>
-#include <malloc.h>
-#include "linux/kernel.h" 
-#include "linux/module.h" 
-/*处理版本问题CONFIG_MODVERSIONS */ 
-#if CONFIG_MODVERSIONS==1 
-#define MODVERSIONS 
-#include "linux/version.h" 
-#endif
+#include <string.h>
+#define SIZE 1 << 12
 
-int main() {
-	printf("Hello world\n");
-	struct file_operations fops;
-	// 登记成功，返回设备的主设备号，否则，返回一个负值
-	unsigned int major = register_chrdev(0, "qihao", &fops);
-	if (major < 0) {
-		printf("register error\n");
+int main()
+{
+    char src[SIZE];
+    char dest[SIZE];
+	
+	strcpy(src, "The string to char_dev");
+	printf("the write is \"%s\"\n", src);
+	FILE *fp0 = fopen("/dev/qihao0", "r+");
+	if (fp0 == NULL) {
+		printf("open file error\n");
+		return 0;
 	}
-	int re = unregister_chrdev(major, "qihao");	
-	if (re != 0) {
-		printf("unregister error\n");
-	}
-	return 0;
+	fwrite(src, sizeof(src), 1, fp0);
+	// fp0 到文件头
+	fseek(fp0, 0, SEEK_SET);
+	fread(dest, sizeof(dest), 1, fp0);
+	printf("the read is \"%s\"\n", dest);
+    fclose(fp0);
+    return 0;    
+
 }

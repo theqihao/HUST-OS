@@ -1,8 +1,8 @@
 ifneq ($(KERNELRELEASE), )
 	#模块文件组成
-	mymodule-objs := mychar.o
+	mymodule-objs := qihao.o
 	#生成模块文件名
-	obj-m := mychar.o
+	obj-m := qihao.o
 else
 	PWD := $(shell pwd)
 	KVER := $(shell uname -r)
@@ -12,7 +12,10 @@ else
 all:
 	$(MAKE) -C $(KDIR) M=$(PWD)
 	
+	
+test:
+	gcc test.c -o qih
 clean:
-	rm -rf *.ko *.o *.mod.o *.mod.c *~ moudles.* Module.*
+	rm -rf *.ko *.o *.mod.o *.mod.c *~ modules.* Module.*
 	
 endif
