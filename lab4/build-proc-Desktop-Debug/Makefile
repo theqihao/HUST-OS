@@ -49,9 +49,11 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = ../proc/main.cpp \
-		../proc/mainwindow.cpp moc_mainwindow.cpp
+		../proc/mainwindow.cpp qrc_qrc.cpp \
+		moc_mainwindow.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
+		qrc_qrc.o \
 		moc_mainwindow.o
 DIST          = ../proc/image.jpg \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -199,6 +201,7 @@ Makefile: ../proc/proc.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qm
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		../proc/proc.pro \
+		../proc/qrc.qrc \
 		/usr/lib/x86_64-linux-gnu/libQt5Widgets.prl \
 		/usr/lib/x86_64-linux-gnu/libQt5Gui.prl \
 		/usr/lib/x86_64-linux-gnu/libQt5Core.prl
@@ -260,6 +263,7 @@ Makefile: ../proc/proc.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qm
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf:
 ../proc/proc.pro:
+../proc/qrc.qrc:
 /usr/lib/x86_64-linux-gnu/libQt5Widgets.prl:
 /usr/lib/x86_64-linux-gnu/libQt5Gui.prl:
 /usr/lib/x86_64-linux-gnu/libQt5Core.prl:
@@ -277,6 +281,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
+	$(COPY_FILE) --parents ../proc/qrc.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents ../proc/mainwindow.h $(DISTDIR)/
 	$(COPY_FILE) --parents ../proc/main.cpp ../proc/mainwindow.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../proc/mainwindow.ui $(DISTDIR)/
@@ -300,8 +305,14 @@ mocables: compiler_moc_header_make_all compiler_moc_source_make_all
 
 check: first
 
-compiler_rcc_make_all:
+compiler_rcc_make_all: qrc_qrc.cpp
 compiler_rcc_clean:
+	-$(DEL_FILE) qrc_qrc.cpp
+qrc_qrc.cpp: ../proc/qrc.qrc \
+		../proc/ubuntu.jpg \
+		../proc/linux.png
+	/usr/lib/x86_64-linux-gnu/qt5/bin/rcc -name qrc ../proc/qrc.qrc -o qrc_qrc.cpp
+
 compiler_moc_header_make_all: moc_mainwindow.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_mainwindow.cpp
@@ -322,7 +333,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_header_clean compiler_uic_clean 
+compiler_clean: compiler_rcc_clean compiler_moc_header_clean compiler_uic_clean 
 
 ####### Compile
 
@@ -332,6 +343,9 @@ main.o: ../proc/main.cpp ../proc/mainwindow.h
 mainwindow.o: ../proc/mainwindow.cpp ../proc/mainwindow.h \
 		ui_mainwindow.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../proc/mainwindow.cpp
+
+qrc_qrc.o: qrc_qrc.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_qrc.o qrc_qrc.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

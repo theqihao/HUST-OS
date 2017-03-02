@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTabWidget>
 #include <QLabel>
+#include <QPixmap>
+#include <QImage>
 
 
 // C/C++

@@ -31,7 +31,8 @@ void MainWindow::initTab() {
 }
 
 void MainWindow::addBasicInfo() {
-    QString final = "\n\n\n\n";
+
+    QString final = "\n\n\n\n\n\n";
     char temp[200];
     char buf[100];
     FILE *fp;
@@ -94,6 +95,14 @@ void MainWindow::addBasicInfo() {
     cout << temp << endl;
 
 
+  //  QImage *image = new QImage("/home/qihao/Desktop/OS/lab4/proc/ubuntu.jpg", this);
+    QLabel *label_image = new QLabel(basicInfo);
+
+    QPixmap pix = QPixmap(":/images/linux.png");
+    label_image->setPixmap(pix);
+    label_image->setGeometry(600, 0, 1000, 200);
+
+
 
     QLabel *label = new QLabel(basicInfo);
     label->setText(final);
@@ -103,8 +112,19 @@ void MainWindow::addBasicInfo() {
 }
 
 void MainWindow::addProcess() {
+    QLabel *label = new QLabel("qi", process);
+   // QPixmap pix = QPixmap(":/images/ubuntu.jpg");
+    //label->setPixmap(pix);
+    QImage *image=new QImage("/home/qihao/Desktop/OS/lab4/proc/ubuntu.jpg");
+    label->setPixmap(QPixmap::fromImage(*image));
 
 
+
+//    label->setText("final");
+   // QFont label_font("Courier", 16);
+  //  label_font.setBold(true);
+   // label->setFont(label_font);
+    label->setGeometry(10, 70, 100, 100);
 }
 
 void MainWindow::addUsed() {

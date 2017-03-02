@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>ubuntu.jpg</file>
+        <file>linux.png</file>
+    </qresource>
+</RCC>
