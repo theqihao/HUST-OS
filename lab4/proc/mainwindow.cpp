@@ -9,6 +9,16 @@ MainWindow::MainWindow(QWidget *parent) :
     this->resize(1000, 600);
     this->setWindowTitle("show proc");
 
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateStatus()));
+    timer->start(1000);
+
+    label = new QLabel(this);
+    label->setText("              Loading......");
+    QFont label_font("Courier", 16);
+    label_font.setBold(true);
+    label->setFont(label_font);
+    label->setGeometry(0, 550, 1000, 50);
     // init
     initTab();
 }
@@ -17,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::initTab() {
     // malloc space
     tab = new QTabWidget(this);
-    tab->resize(1000, 600);
+    tab->resize(1000, 550);
     basicInfo = new QWidget;
     process = new QWidget;
     used = new QWidget;
@@ -28,6 +38,8 @@ void MainWindow::initTab() {
     addBasicInfo();
     addProcess();
     addUsed();
+
+
 }
 
 void MainWindow::addBasicInfo() {
@@ -94,16 +106,10 @@ void MainWindow::addBasicInfo() {
     final += QString(temp);
     cout << temp << endl;
 
-
-  //  QImage *image = new QImage("/home/qihao/Desktop/OS/lab4/proc/ubuntu.jpg", this);
     QLabel *label_image = new QLabel(basicInfo);
-
     QPixmap pix = QPixmap(":/images/linux.png");
     label_image->setPixmap(pix);
     label_image->setGeometry(600, 0, 1000, 200);
-
-
-
     QLabel *label = new QLabel(basicInfo);
     label->setText(final);
     QFont label_font("Courier", 16);
@@ -131,6 +137,13 @@ void MainWindow::addUsed() {
 
 }
 
+
+void MainWindow::updateStatus() {
+    QDateTime time = QDateTime::currentDateTime();
+    status = time.toString("  yyyy-MM-dd hh:mm:ss");
+    // status line
+    label->setText(status);
+}
 
 MainWindow::~MainWindow()
 {

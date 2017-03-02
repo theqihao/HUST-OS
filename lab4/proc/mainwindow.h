@@ -6,6 +6,9 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QImage>
+#include <QString>
+#include <QDateTime>
+#include <QTimer>
 
 
 // C/C++
@@ -40,7 +43,12 @@ private:
     QWidget *basicInfo;
     QWidget *process;
     QWidget *used;
+    QString status;
+    QLabel *label;
 
+
+private slots:
+    void updateStatus();
 };
 
 #endif // MAINWINDOW_H
