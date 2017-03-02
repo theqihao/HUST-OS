@@ -10,7 +10,7 @@ int main()
     printf("BUF: %s\n",Buf);
     
     /*打开设备文件*/
-    fp0 = fopen("/dev/memdev0","r+");
+    fp0 = fopen("/dev/qihao0","r+");
     if (fp0 == NULL)
     {
         printf("Open Memdev0 Error!\n");

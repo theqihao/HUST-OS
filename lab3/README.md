@@ -28,3 +28,8 @@ cd /dev
 chmod +777 mychar
 rmmod mychar
 
+
+cat /proc/devices  | grep "qih"
+302 qihao
+
+dmesg

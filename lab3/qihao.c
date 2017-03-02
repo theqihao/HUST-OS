@@ -1,6 +1,6 @@
 #include "qihao.h"
 
-static qihao_major = QIHAO_MAJOR;
+static int qihao_major = QIHAO_MAJOR;
 struct cdev cdev;
 struct DEV *devp;
 
@@ -23,7 +23,9 @@ int my_release(struct inode *inode, struct file *filp)
 	return 0;
 }
 
-static int my_read(struct file *filp, char __user *buffer, size_t length,loff_t *offset) {
+
+
+static ssize_t my_read(struct file *filp, char __user *buffer, size_t length,loff_t *offset) {
 	struct DEV *dev = filp->private_data;
 	// if success, return 0
 	if (copy_from_user(dev->data + *offset, buffer, length)) {
@@ -36,7 +38,7 @@ static int my_read(struct file *filp, char __user *buffer, size_t length,loff_t 
 
 static ssize_t my_write(struct file *filp, const char __user  *buffer, size_t length,loff_t *offset) {
 	struct DEV *dev = filp->private_data;
-	if (copy_to_user(buffer, (void *)(dev->data + *offset), length)) {
+	if (copy_to_user(buffer, (dev->data + *offset), length)) {
 		return -1;
 	} else {
 		*offset += length;
@@ -55,7 +57,7 @@ static loff_t my_llseek(struct file *filp, loff_t offset, int whence)
         newpos = filp->f_pos + offset;
         break;
       case 2: 
-        newpos = SIZE -1 + offset;
+        newpos = ((SIZE) - 1) + offset;
         break;
       default:
         return -EINVAL;
@@ -80,16 +82,19 @@ static int my_init(void)
 {
 	int i;
 	int ret;
-	dev_t devno = MKDEV(qihao_major, 0);
+	printk(KERN_INFO "Hello init ");
+	dev_t mydevno = MKDEV(qihao_major, 0);
 	// static requst 
 	if (qihao_major != 0) {
-		ret = register_chrdev_region(devno, 2, "qihao");
+		ret = register_chrdev_region(mydevno, 2, "qihao");
 	} else { 
-		ret = alloc_chrdev_region(&devno, 0, 2, "qihao");
-		qihao_major = MAJOR(devno);
+		ret = alloc_chrdev_region(&mydevno, 0, 2, "qihao");
+		qihao_major = MAJOR(mydevno);
 	}
-	if (ret < 0) return ret;
-	
+	if (ret < 0) {
+		printk(KERN_INFO "register error");
+	 	return ret;
+	}	
 	// init cdev
 	cdev_init(&cdev, &my_fops);
 	cdev.owner = THIS_MODULE;
@@ -104,9 +109,9 @@ static int my_init(void)
 	devp = kmalloc(QIHAO_NR_DEVS * sizeof(struct DEV), GFP_KERNEL);
 	if (!devp) {
 		printk(KERN_INFO "get memory error");
-		return EINVAL;
+		return -EINVAL;
 	} 
-	memset(devp, 0, QIHAO_NR_DEVS * sizeof(struct DEV));
+	memset(devp, 0, sizeof(struct DEV));
 	for (i = 0; i < QIHAO_NR_DEVS; i++) {
 		devp[i].size = SIZE;
 		devp[i].data = kmalloc(SIZE, GFP_KERNEL);

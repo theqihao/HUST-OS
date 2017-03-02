@@ -8,7 +8,7 @@ int main()
     char dest[SIZE];
 	
 	strcpy(src, "The string to char_dev");
-	printf("the write is \"%s\"\n", src);
+	printf("\nthe write is \"%s\"\n", src);
 	FILE *fp0 = fopen("/dev/qihao0", "r+");
 	if (fp0 == NULL) {
 		printf("open file error\n");
@@ -18,7 +18,7 @@ int main()
 	// fp0 到文件头
 	fseek(fp0, 0, SEEK_SET);
 	fread(dest, sizeof(dest), 1, fp0);
-	printf("the read is \"%s\"\n", dest);
+	printf("\nthe read is \"%s\"\n", dest);
     fclose(fp0);
     return 0;    
 
