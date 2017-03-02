@@ -7,8 +7,13 @@ else
 KDIR := /lib/modules/2.6.18-53.el5/buildall:
 make -C $(KDIR) M=$(PWD) modulesclean:
 rm -f *.ko *.o *.mod.o *.mod.c *.symversendif
-KERNELRELEASE是在内核源码的顶层Makefile中定义的一个变量，在第一次读取执行此Makefile时，KERNELRELEASE没有被定义，所以make将读取执行else之后的内容，如果make的目标是clean，直接执行clean操作，然后结束。当make的目标为all时，-C $(KDIR)指明跳转到内核源码目录下读取那里的Makefile；M=$(PWD) 表明然后返回到当前目录继续读入、执行当前的Makefile。当从内核源码目录返回时，KERNELRELEASE已被定义，kbuild也被启动去解析kbuild语法的语句，make将继续读取else之前的内容。else之前的内容为kbuild语法的语句，指明模块源码中各文件的依赖关系，以及要生成的目标模块名。param-objs
-:= file1.o file2.o 表示param.o由file1.o与file2.o 连接生成，obj-m := param.o表示编译连接后将生成param.o模块。
+KERNELRELEASE是在内核源码的顶层Makefile中定义的一个变量，
+在第一次读取执行此Makefile时，KERNELRELEASE没有被定义，
+所以make将读取执行else之后的内容，然后结束。
+当make的目标为all时，-C $(KDIR)指明跳转到内核源码目录下读取那里的Makefile；M=$(PWD)
+表明然后返回到当前目录继续读入、执行当前的Makefile。
+当从内核源码目录返回时，KERNELRELEASE已被定义，kbuild也被启动去解析kbuild语法的语句，make将继续读取else之前的内容。else之前的内容为kbuild语法的语句，指明模块源码中各文件的依赖关系，以及要生成的目标模块名。
+param-objs:= file1.o file2.o 表示param.o由file1.o与file2.o 连接生成，obj-m := param.o表示编译连接后将生成param.o模块。
 
 
 /* mychar */
@@ -29,7 +34,7 @@ chmod +777 mychar
 rmmod mychar
 
 
-cat /proc/devices  | grep "qih"
+cat /proc/devices  | grep "qihao"
 302 qihao
 
-dmesg
+dmesg:查看内核输出
