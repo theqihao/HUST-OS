@@ -16,6 +16,6 @@ all:
 test:
 	gcc test.c -o qih
 clean:
-	rm -rf *.ko *.o *.mod.o *.mod.c *~ modules.* Module.*
+	rm -rf *.ko *.o *.mod.o .*.cmd *.mod.c *~ modules.* Module.* .tmp_versions
 	
 endif

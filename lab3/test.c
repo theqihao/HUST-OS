@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#define SIZE 1 << 12
+#define SIZE 4096
 
 int main()
 {

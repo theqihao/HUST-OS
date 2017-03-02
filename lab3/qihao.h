@@ -17,7 +17,7 @@
 // nums of dev  
 #define QIHAO_NR_DEVS 2  
 // buf size 
-#define	SIZE 1 << 12
+#define	SIZE 4096
 
 struct DEV {                                                        
   char *data;                      

@@ -9,7 +9,7 @@ int my_open(struct inode *inode, struct file *filp) {
     // get minor num 
     int num = MINOR(inode->i_rdev);
     if (num >= QIHAO_NR_DEVS) {
-    	return -1;
+    	return -ENODEV;
     }
     dev = &devp[num];
     // default is null 
@@ -24,26 +24,45 @@ int my_release(struct inode *inode, struct file *filp)
 }
 
 
-
-static ssize_t my_read(struct file *filp, char __user *buffer, size_t length,loff_t *offset) {
+static ssize_t my_read(struct file *filp, char __user *buf, size_t size, loff_t *ppos) {
+	unsigned long p = *ppos;
+	unsigned int count = size;
+	int ret = 0;
 	struct DEV *dev = filp->private_data;
-	// if success, return 0
-	if (copy_from_user(dev->data + *offset, buffer, length)) {
-		return -1;
-	} else {
-		*offset += length;
-		return length;
+	  
+	if (p >= SIZE) return 0;
+	    
+	if (copy_to_user(buf, (void*)(dev->data + p), count)) {
+		ret =  - EFAULT;
 	}
+	else {
+		*ppos += count;   
+		ret = count;    
+		printk(KERN_INFO "read %d bytes(s) from %d\n", count, p);
+	}
+
+	return ret;
 }
 
-static ssize_t my_write(struct file *filp, const char __user  *buffer, size_t length,loff_t *offset) {
+static ssize_t my_write(struct file *filp, const char __user *buf, size_t size, loff_t *ppos)
+{
+	unsigned long p = *ppos;
+	unsigned int count = size;
+	int ret = 0;
 	struct DEV *dev = filp->private_data;
-	if (copy_to_user(buffer, (dev->data + *offset), length)) {
-		return -1;
-	} else {
-		*offset += length;
-		return length;
+	  
+	if (p >= SIZE) return 0;
+	    
+	if (copy_from_user(dev->data + p, buf, count)) {
+		ret =  - EFAULT;
 	}
+	else {
+		*ppos += count;   
+		ret = count;    
+		printk(KERN_INFO "written %d bytes(s) from %d\n", count, p);
+	}
+
+	return ret;
 }
 
 static loff_t my_llseek(struct file *filp, loff_t offset, int whence)
