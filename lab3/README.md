@@ -16,7 +16,7 @@ KERNELRELEASE是在内核源码的顶层Makefile中定义的一个变量，在�
 查看模块：lsmod | grep "mychar"
 删除模块：rmmod mychar
 
-1)cat /proc/devices看看有哪些编号已经被使用，我们选一个没有使用的XXX。
+1)cat /proc/devices 找到自己的设备号XXX
 2)insmod memdev.ko
 3)通过"mknod /dev/memdev0 c XXX 0"命令创建"/dev/memdev0"设备节点。
 eg :
