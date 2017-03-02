@@ -38,8 +38,6 @@ void MainWindow::initTab() {
     addBasicInfo();
     addProcess();
     addUsed();
-
-
 }
 
 void MainWindow::addBasicInfo() {
@@ -69,6 +67,15 @@ void MainWindow::addBasicInfo() {
     sprintf(temp, "\tProcessor    :   %s  *  %d\n\n", info, core);
     final += QString(temp);
     // mem info
+    fp = fopen("/proc/meminfo", "r");
+    if (fp == NULL) cout << "open meminfo error" << endl;
+    fread(buf, sizeof(buf), 1, fp);
+    int size;
+    sscanf(buf, "MemTotal:        %d kB", &size);
+    sprintf(temp, "\tMemory       :   %.1lfGiB\n\n", 1.0 * size / 1024 / 1024);
+    final += QString(temp);
+
+    // version info
     fp = popen("cat /proc/version", "r");
     if (fp == NULL) cout << "open version error" << endl;
     fread(buf, sizeof(buf), 1, fp);
@@ -97,7 +104,7 @@ void MainWindow::addBasicInfo() {
     int second = (run_time - hour * 3600 - minite * 60);
     sprintf(temp, "\tRun time     :   %d hour %d minite %d second\n\n", hour, minite, second);
     final += QString(temp);
-    // OStype
+    // OS type
     memset(buf, 0, sizeof(buf));
     fp = popen("uname -m", "r");
     if (fp == NULL) cout << "uname -m error" << endl;
@@ -105,7 +112,7 @@ void MainWindow::addBasicInfo() {
     sprintf(temp, "\tOS type      :   %s\n", buf);
     final += QString(temp);
     cout << temp << endl;
-
+    // label
     QLabel *label_image = new QLabel(basicInfo);
     QPixmap pix = QPixmap(":/images/linux.png");
     label_image->setPixmap(pix);
@@ -118,19 +125,8 @@ void MainWindow::addBasicInfo() {
 }
 
 void MainWindow::addProcess() {
-    QLabel *label = new QLabel("qi", process);
-   // QPixmap pix = QPixmap(":/images/ubuntu.jpg");
-    //label->setPixmap(pix);
-    QImage *image=new QImage("/home/qihao/Desktop/OS/lab4/proc/ubuntu.jpg");
-    label->setPixmap(QPixmap::fromImage(*image));
+    //QTableView tv = new QTableView(process);
 
-
-
-//    label->setText("final");
-   // QFont label_font("Courier", 16);
-  //  label_font.setBold(true);
-   // label->setFont(label_font);
-    label->setGeometry(10, 70, 100, 100);
 }
 
 void MainWindow::addUsed() {

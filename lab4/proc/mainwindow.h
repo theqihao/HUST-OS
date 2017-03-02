@@ -9,6 +9,7 @@
 #include <QString>
 #include <QDateTime>
 #include <QTimer>
+#include <QTableView>
 
 
 // C/C++
@@ -39,14 +40,17 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    // main ui
     QTabWidget *tab;
     QWidget *basicInfo;
     QWidget *process;
     QWidget *used;
-    QString status;
+
+
+
+    // status line
     QLabel *label;
-
-
+    QString status;
 private slots:
     void updateStatus();
 };
