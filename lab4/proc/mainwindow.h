@@ -10,6 +10,8 @@
 #include <QDateTime>
 #include <QTimer>
 #include <QTableView>
+#include <QStandardItemModel>
+#include <QAbstractItemView>
 
 
 // C/C++

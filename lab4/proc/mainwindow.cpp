@@ -32,8 +32,9 @@ void MainWindow::initTab() {
     process = new QWidget;
     used = new QWidget;
     // add
-    tab->addTab(basicInfo, QString("basicInfo"));
     tab->addTab(process, QString("process"));
+    tab->addTab(basicInfo, QString("basicInfo"));
+
     tab->addTab(used, QString("used"));
     addBasicInfo();
     addProcess();
@@ -41,8 +42,7 @@ void MainWindow::initTab() {
 }
 
 void MainWindow::addBasicInfo() {
-
-    QString final = "\n\n\n\n\n\n";
+    QString final = "\n\n\n\n\n";
     char temp[200];
     char buf[100];
     FILE *fp;
@@ -116,7 +116,7 @@ void MainWindow::addBasicInfo() {
     QLabel *label_image = new QLabel(basicInfo);
     QPixmap pix = QPixmap(":/images/linux.png");
     label_image->setPixmap(pix);
-    label_image->setGeometry(600, 0, 1000, 200);
+    label_image->setGeometry(600, 0, 500, 180);
     QLabel *label = new QLabel(basicInfo);
     label->setText(final);
     QFont label_font("Courier", 16);
@@ -125,8 +125,22 @@ void MainWindow::addBasicInfo() {
 }
 
 void MainWindow::addProcess() {
-    //QTableView tv = new QTableView(process);
+    QTableView *tv = new QTableView(process);
+    QStandardItemModel *model = new QStandardItemModel();
+    model->setHorizontalHeaderItem(0, new QStandardItem(QString::fromLocal8Bit("病人姓名")));
+    model->setHorizontalHeaderItem(1, new QStandardItem(QString::fromLocal8Bit("病人性别")));
+    model->setHorizontalHeaderItem(2, new QStandardItem(QString::fromLocal8Bit("病人年龄")));
+    model->setHorizontalHeaderItem(3, new QStandardItem(QString::fromLocal8Bit("病人序号")));
+    model->setHorizontalHeaderItem(4, new QStandardItem(QString::fromLocal8Bit("病人优先等级 ")));
+    model->setHorizontalHeaderItem(5, new QStandardItem(QString::fromLocal8Bit("病人到达时间 ")));
+    tv->setModel(model);
 
+    tv->resize(1000, 550);
+
+
+    tv->setMouseTracking(true);
+    // select row
+    tv->setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
 void MainWindow::addUsed() {
