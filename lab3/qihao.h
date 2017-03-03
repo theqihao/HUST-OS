@@ -13,7 +13,7 @@
 #include <asm/uaccess.h>
 
 // major num of DEV 
-#define QIHAO_MAJOR 302
+#define QIHAO_MAJOR 333
 // nums of dev  
 #define QIHAO_NR_DEVS 2  
 // buf size 

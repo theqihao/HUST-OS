@@ -7,7 +7,7 @@ int main()
     char src[SIZE];
     char dest[SIZE];
 	
-	strcpy(src, "The string to char_dev");
+	strcpy(src, "The string to ss char_dev sss ");
 	printf("\nthe write is \"%s\"\n", src);
 	FILE *fp0 = fopen("/dev/qihao0", "r+");
 	if (fp0 == NULL) {

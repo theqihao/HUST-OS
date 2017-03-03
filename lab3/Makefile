@@ -11,7 +11,7 @@ else
 
 all:
 	$(MAKE) -C $(KDIR) M=$(PWD)
-	
+
 	
 test:
 	gcc test.c -o qih
