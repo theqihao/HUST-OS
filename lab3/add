@@ -1,0 +1,7 @@
+#!/bin/bash
+rmmod qihao
+rm /dev/qihao*
+make clean
+make
+insmod qihao.ko
+mknod /dev/qihao0 c 333 0

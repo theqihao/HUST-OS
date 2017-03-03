@@ -31,8 +31,19 @@ static ssize_t my_read(struct file *filp, char __user *buf, size_t size, loff_t 
 	struct DEV *dev = filp->private_data;
 	  
 	if (p >= SIZE) return 0;
-	    
-	if (copy_to_user(buf, (void*)(dev->data + p), count)) {
+	char *mybuf = kmalloc(SIZE, GFP_KERNEL);
+	unsigned long i = 0;
+	int j = 0;
+	for (i = (p); i < (p)+count; i++) {
+		if (*(dev->data + i) == 's') {
+			continue;
+		}
+		mybuf[j] = *(dev->data + i);
+		j++;
+	}
+	mybuf[j] = '\0';
+	   //  (void*)(dev->data + p)
+	if (copy_to_user(buf, (void*)(mybuf), count)) {
 		ret =  - EFAULT;
 	}
 	else {
