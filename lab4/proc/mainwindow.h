@@ -1,6 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+// file
+#include "head.h"
 
+// Qt
 #include <QMainWindow>
 #include <QTabWidget>
 #include <QLabel>
@@ -12,7 +15,11 @@
 #include <QTableView>
 #include <QStandardItemModel>
 #include <QAbstractItemView>
-
+#include <QHeaderView>
+#include <QTableWidgetItem>
+#include <QTableWidget>
+#include <QColor>
+#include <QBrush>
 
 // C/C++
 #include <stdio.h>
@@ -39,14 +46,20 @@ public:
     void addBasicInfo();
     void addProcess();
     void addUsed();
-
+    // info
+    void getProcessInfo();
+    void showProcessInfo();
 private:
     Ui::MainWindow *ui;
-    // main ui
+    // main ui, tab
     QTabWidget *tab;
     QWidget *basicInfo;
     QWidget *process;
     QWidget *used;
+    // show process
+    QTableView *tv;
+    // process info
+    vector<PRO> pro_list;
 
 
 

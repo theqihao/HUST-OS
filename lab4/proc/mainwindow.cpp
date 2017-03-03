@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     label->setFont(label_font);
     label->setGeometry(0, 550, 1000, 50);
     // init
+    pro_list.clear();
     initTab();
 }
 
@@ -132,23 +133,44 @@ void MainWindow::addBasicInfo() {
 }
 
 void MainWindow::addProcess() {
-    QTableView *tv = new QTableView(process);
+    tv = new QTableView(process);
     QStandardItemModel *model = new QStandardItemModel();
-    model->setHorizontalHeaderItem(0, new QStandardItem(QString::fromLocal8Bit("病人姓名")));
-    model->setHorizontalHeaderItem(1, new QStandardItem(QString::fromLocal8Bit("病人性别")));
-    model->setHorizontalHeaderItem(2, new QStandardItem(QString::fromLocal8Bit("病人年龄")));
-    model->setHorizontalHeaderItem(3, new QStandardItem(QString::fromLocal8Bit("病人序号")));
-    model->setHorizontalHeaderItem(4, new QStandardItem(QString::fromLocal8Bit("病人优先等级 ")));
-    model->setHorizontalHeaderItem(5, new QStandardItem(QString::fromLocal8Bit("病人到达时间 ")));
+    model->setHorizontalHeaderItem(0, new QStandardItem(QString("Proecss name")));
+    model->setHorizontalHeaderItem(1, new QStandardItem(QString("User name")));
+    model->setHorizontalHeaderItem(2, new QStandardItem(QString("ID")));
+    model->setHorizontalHeaderItem(3, new QStandardItem(QString("PID")));
+    model->setHorizontalHeaderItem(4, new QStandardItem(QString("%CPU")));
+    model->setHorizontalHeaderItem(5, new QStandardItem(QString("Memory")));
+    model->setHorizontalHeaderItem(6, new QStandardItem(QString("Priority")));
+
     tv->setModel(model);
-
+    // size
     tv->resize(1000, 550);
+    // column width
+    tv->setColumnWidth(0,200);
+    tv->setColumnWidth(1,100);
+    tv->setColumnWidth(2,100);
+    tv->setColumnWidth(3,100);
+    tv->setColumnWidth(4,100);
+    tv->setColumnWidth(5,150);
+    tv->setColumnWidth(6,150);
 
-
+    // set
     tv->setMouseTracking(true);
     // select row
     tv->setSelectionBehavior(QAbstractItemView::SelectRows);
+    getProcessInfo();
+    showProcessInfo();
 }
+
+void MainWindow::getProcessInfo() {
+
+}
+
+void MainWindow::showProcessInfo() {
+
+}
+
 
 void MainWindow::addUsed() {
 

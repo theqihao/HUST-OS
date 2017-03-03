@@ -49,10 +49,12 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = ../proc/main.cpp \
-		../proc/mainwindow.cpp qrc_qrc.cpp \
+		../proc/mainwindow.cpp \
+		../proc/head.cpp qrc_qrc.cpp \
 		moc_mainwindow.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
+		head.o \
 		qrc_qrc.o \
 		moc_mainwindow.o
 DIST          = ../proc/image.jpg \
@@ -112,8 +114,10 @@ DIST          = ../proc/image.jpg \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		../proc/proc.pro ../proc/mainwindow.h ../proc/main.cpp \
-		../proc/mainwindow.cpp
+		../proc/proc.pro ../proc/mainwindow.h \
+		../proc/head.h ../proc/main.cpp \
+		../proc/mainwindow.cpp \
+		../proc/head.cpp
 QMAKE_TARGET  = proc
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = proc
@@ -282,8 +286,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../proc/qrc.qrc $(DISTDIR)/
-	$(COPY_FILE) --parents ../proc/mainwindow.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../proc/main.cpp ../proc/mainwindow.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../proc/mainwindow.h ../proc/head.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../proc/main.cpp ../proc/mainwindow.cpp ../proc/head.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../proc/mainwindow.ui $(DISTDIR)/
 
 
@@ -316,7 +320,8 @@ qrc_qrc.cpp: ../proc/qrc.qrc \
 compiler_moc_header_make_all: moc_mainwindow.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_mainwindow.cpp
-moc_mainwindow.cpp: ../proc/mainwindow.h
+moc_mainwindow.cpp: ../proc/head.h \
+		../proc/mainwindow.h
 	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/qihao/Desktop/OS/lab4/proc -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../proc/mainwindow.h -o moc_mainwindow.cpp
 
 compiler_moc_source_make_all:
@@ -337,12 +342,17 @@ compiler_clean: compiler_rcc_clean compiler_moc_header_clean compiler_uic_clean
 
 ####### Compile
 
-main.o: ../proc/main.cpp ../proc/mainwindow.h
+main.o: ../proc/main.cpp ../proc/mainwindow.h \
+		../proc/head.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../proc/main.cpp
 
 mainwindow.o: ../proc/mainwindow.cpp ../proc/mainwindow.h \
+		../proc/head.h \
 		ui_mainwindow.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../proc/mainwindow.cpp
+
+head.o: ../proc/head.cpp ../proc/head.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o head.o ../proc/head.cpp
 
 qrc_qrc.o: qrc_qrc.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_qrc.o qrc_qrc.cpp
