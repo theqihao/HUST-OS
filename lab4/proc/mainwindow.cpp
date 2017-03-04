@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
+
 void MainWindow::addUsed() {
     // CPU label
     cpu_label = new QLabel(used);
@@ -50,22 +51,52 @@ void MainWindow::addUsed() {
     cpu_progressBar->setOrientation(Qt::Horizontal);
     cpu_progressBar->setGeometry(QRect(350, 16, 600, 20));
     cpu_progressBar->setFont(label_font);
-
     cpu_progressBar->setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center; } QProgressBar::chunk { background-color: rgb(0, 0, 255) }");
- //  cpu_progressBar->setStyleSheet("");;
-   // cpu_progressBar->setPalette(pelette);
     // cpu
+    cpu_graph = new QLabel(used);
+    cpu_graph->setGeometry(QRect(20, 100, 800, 200)); //设local, size
+    QPixmap pix(600,160);
+        QPainter painter(&pix);
+        pix.fill(Qt::blue);
+        QPen pen0;
+            pen0.setColor(Qt::lightGray);
+            painter.setPen(pen0);
+            for(int i=1;i<4;i++)
+              {
+                  painter.drawLine(0,i*40,600,i*40);
+              }
+          cpu_graph->setPixmap(pix);
 
+
+/*
+
+    QPixmap pix(600,160);
+        QPainter painter(&pix);
+        pix.fill(Qt::blue);
+        QPen pen0;
+            pen0.setColor(Qt::lightGray);
+            painter.setPen(pen0);
+            for(int i=1;i<4;i++)
+              {
+                  painter.drawLine(0,i*40,600,i*40);
+              }
+
+    cpu_label->setPixmap(pix);
+*/
+/*
+    cpu_painter.begin(used);
+    cpu_painter.setPen(Qt::blue);
+    cpu_painter.drawLine(300, 200, 700, 200);
+    cpu_painter.drawRect(500, 231, 80, 80);
+    cpu_painter.end();
+    */
     // calu
     cpu1p = &cpu1;
     cpu2p = &cpu2;
     get_CPU(*cpu1p);
     cout << "addUsed finish" << endl;
-
-
-    // mem
-   // QLabel *mem_label = new QLabel(used);
 }
+
 
 void MainWindow::get_CPU(CPU &cpu)
 {
@@ -78,6 +109,8 @@ void MainWindow::get_CPU(CPU &cpu)
     sscanf(buf, "%s %u %u %u %u %u %u %u", cpu.name, &cpu.user, &cpu.nice, &cpu.system, &cpu.idle, &cpu.iowait, &cpu.irq, &cpu.softirq);
     fclose(fp);
 }
+
+
 
 void MainWindow::calu_CPU()
 {

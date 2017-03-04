@@ -145,7 +145,7 @@ first: all
 
 ####### Build rules
 
-$(TARGET): ui_mainwindow.h $(OBJECTS)  
+$(TARGET): ui_mainwindow.h ui_mypainter.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: ../proc/proc.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -288,7 +288,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents ../proc/qrc.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents ../proc/mainwindow.h ../proc/head.h $(DISTDIR)/
 	$(COPY_FILE) --parents ../proc/main.cpp ../proc/mainwindow.cpp ../proc/head.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../proc/mainwindow.ui $(DISTDIR)/
+	$(COPY_FILE) --parents ../proc/mainwindow.ui ../proc/mypainter.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -326,11 +326,14 @@ moc_mainwindow.cpp: ../proc/head.h \
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_mainwindow.h
+compiler_uic_make_all: ui_mainwindow.h ui_mypainter.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_mainwindow.h
+	-$(DEL_FILE) ui_mainwindow.h ui_mypainter.h
 ui_mainwindow.h: ../proc/mainwindow.ui
 	/usr/lib/x86_64-linux-gnu/qt5/bin/uic ../proc/mainwindow.ui -o ui_mainwindow.h
+
+ui_mypainter.h: ../proc/mypainter.ui
+	/usr/lib/x86_64-linux-gnu/qt5/bin/uic ../proc/mypainter.ui -o ui_mypainter.h
 
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:

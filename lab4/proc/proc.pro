@@ -19,7 +19,8 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     head.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    mypainter.ui
 
 DISTFILES += \
     image.jpg

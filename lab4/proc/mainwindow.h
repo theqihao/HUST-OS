@@ -22,6 +22,11 @@
 #include <QBrush>
 #include <QMessageBox>
 #include <QProgressBar>
+#include <QPainter>
+#include <QWidget>
+#include <QPen>
+#include <QPixmap>
+
 
 
 // C/C++
@@ -79,6 +84,7 @@ private:
     // process info
     vector<PRO> list, show_list;
     // used info
+    // 1: cpu
     CPU cpu1;
     CPU cpu2;
     CPU *cpu1p;
@@ -86,8 +92,11 @@ private:
     double cpu_res;
     QLabel *cpu_label;
     QProgressBar *cpu_progressBar;
-    QLabel *mem_label;
 
+    QLabel *cpu_graph;
+
+    // 2:mem
+    QLabel *mem_label;
 
     // status line
     QLabel *label;
