@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStatus()));
 
- //   connect(timer, SIGNAL(timeout()), this, SLOT(getProcessInfo()));
+  //  connect(timer, SIGNAL(timeout()), this, SLOT(getProcessInfo()));
 
     timer->start(1000);
 
@@ -106,52 +106,59 @@ void MainWindow::getProcessInfo() {
         }
         // User
         if (getpwuid(buf.st_uid)->pw_name != NULL)
-        strcpy(pro.user, getpwuid(buf.st_uid)->pw_name);
+            strcpy(pro.user, getpwuid(buf.st_uid)->pw_name);
         // name
         sprintf(open_name, "%s/status", full_name);
         FILE *fp = fopen(open_name, "r");
         if (fp == NULL) {
             cout << "open " << open_name << " error" << endl;
+            fclose(fp);
             continue;
         }
         fscanf(fp, "Name: %s\n", pro.name);
 
         // status
-        fscanf(fp, "State: %s (%s)\n", pro.state, temp);
+        fscanf(fp, "State: %s %s\n", pro.state, temp);
 
         // PID, PPID
-
+/*
         sprintf(shell, "cat %s/status | grep Pid", full_name);
         fp = popen(shell, "r");
         if (fp == NULL) {
             cout << "open " << shell << "error" << endl;
+            fclose(fp);
             continue;
         }
-
-       // fscanf(fp, "Tgid:	%d\n", &pro.pid);
-        //fscanf(fp, "Ngid:	%d\n", &pro.ppid);
+*/
+        fscanf(fp, "Tgid:	%d\n", &pro.pid);
+        fscanf(fp, "Ngid:	%d\n", &pro.ppid);
 
         fscanf(fp, "Pid:	%d\n", &pro.pid);
         fscanf(fp, "PPid:	%d\n", &pro.ppid);
 
         // mem  VmSize
+
         sprintf(shell, "cat %s/status | grep VmSize | awk -F' ' '{print $2}'", full_name);
         fp = popen(shell, "r");
         if (fp == NULL) {
             cout << "open " << shell << "error" << endl;
+            fclose(fp);
             continue;
         }
         fscanf(fp, "%d", &pro.mem);
+
         // cpu
 
+
+
         // pri  nice
+
         sprintf(open_name, "%s/stat", full_name);
         fp = fopen(open_name, "r");
         fscanf(fp, "%d %s %s", &pro.pri, temp, temp);
         for (int i = 0; i < 16; i++) {
             fscanf(fp, "%d", &pro.pri);
         }
-
         // end
         fclose(fp);
         list.push_back(pro);
