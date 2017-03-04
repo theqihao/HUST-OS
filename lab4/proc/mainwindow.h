@@ -89,10 +89,9 @@ private:
     CPU cpu2;
     CPU *cpu1p;
     CPU *cpu2p;
-    double cpu_res;
     QLabel *cpu_label;
     QProgressBar *cpu_progressBar;
-
+    vector<double> cpu_list;
     QLabel *cpu_graph;
 
     // 2:mem

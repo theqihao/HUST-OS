@@ -47,25 +47,41 @@ void MainWindow::addUsed() {
     // CPU progressBar
     cpu_progressBar = new QProgressBar(used);
     cpu_progressBar->setRange(0,100);
-    cpu_progressBar->setValue((int) cpu_res);
+    cpu_progressBar->setValue(0);
     cpu_progressBar->setOrientation(Qt::Horizontal);
     cpu_progressBar->setGeometry(QRect(350, 16, 600, 20));
     cpu_progressBar->setFont(label_font);
     cpu_progressBar->setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center; } QProgressBar::chunk { background-color: rgb(0, 0, 255) }");
     // cpu
     cpu_graph = new QLabel(used);
-    cpu_graph->setGeometry(QRect(20, 100, 800, 200)); //设local, size
-    QPixmap pix(600,160);
-        QPainter painter(&pix);
-        pix.fill(Qt::blue);
-        QPen pen0;
-            pen0.setColor(Qt::lightGray);
-            painter.setPen(pen0);
-            for(int i=1;i<4;i++)
-              {
-                  painter.drawLine(0,i*40,600,i*40);
-              }
-          cpu_graph->setPixmap(pix);
+    cpu_graph->setGeometry(QRect(100, 50, 800, 160)); //设local, size
+    QPixmap cpu_pix(800, 200);
+    QPainter cpu_painter(&cpu_pix);
+    cpu_painter.setBrush(QBrush(Qt::green, Qt::CrossPattern));
+    cpu_painter.setPen(Qt::green);
+    cpu_painter.drawRect(0, 20, 800, 160);
+    // x
+    QLabel *cpu_x = new QLabel(used);
+    QFont cpu_x_font("Courier", 10);
+    cpu_x->setFont(label_font);
+    cpu_x->setPalette(pelette);
+    cpu_x->setGeometry(QRect(900, 16, 100, 200)); //设local, size
+    cpu_x->setText("100%\n\n75%\n\n25%");
+    // y
+    QLabel *cpu_y = new QLabel(used);
+    QFont cpu_y_font("Courier", 10);
+    cpu_y->setFont(label_font);
+    cpu_y->setPalette(pelette);
+    cpu_y->setGeometry(QRect(100, 200, 900, 50)); //设local, size
+    cpu_y->setText("60                 40                    20                  0 (s)");
+   // cpu_pix.fill(Qt::white);
+    //QPen cpu_pen;
+    //cpu_pen.setColor(Qt::green);
+    //cpu_painter.setPen(cpu_pen);
+
+
+
+    cpu_graph->setPixmap(cpu_pix);
 
 
 /*
@@ -124,10 +140,11 @@ void MainWindow::calu_CPU()
     double sum2 = cpu2p->user + cpu2p->nice + cpu2p->system + cpu2p->idle + cpu2p->iowait + cpu2p->irq + cpu2p->softirq;
     double sub_sum = sum2 - sum1;
     double sub_idle = cpu2p->idle - cpu1p->idle;
-    cpu_res = (1 - (sub_idle) / (sub_sum)) * 100;
+    double cpu_res = (1 - (sub_idle) / (sub_sum)) * 100;
 
     cpu_progressBar->setValue((int) cpu_res);
     cpu_label->setText("CPU used : " + QString::number(cpu_res, 10, 2) + "%");
+    cpu_list.push_back(cpu_res);
     CPU *temp = cpu1p;
     cpu1p = cpu2p;
     cpu2p = temp;
