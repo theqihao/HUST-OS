@@ -39,6 +39,9 @@
 #include <pwd.h> /* file own  */
 #include <iostream>
 #include <vector>
+#include <QList>
+#include <queue>
+#include <deque>
 
 using namespace std;
 
@@ -93,7 +96,6 @@ private:
     QProgressBar *cpu_progressBar;
     vector<double> cpu_list;
     QLabel *cpu_graph;
-
     // 2:mem
     QLabel *mem_label;
 
@@ -103,6 +105,7 @@ private:
 private slots:
     void updateStatus();
     void calu_CPU();
+    void cpu_line();
     void test();
 };
 
