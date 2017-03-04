@@ -20,6 +20,9 @@
 #include <QTableWidget>
 #include <QColor>
 #include <QBrush>
+#include <QMessageBox>
+#include <QProgressBar>
+
 
 // C/C++
 #include <stdio.h>
@@ -54,9 +57,12 @@ public:
     void addUsed();
     // info
 
+
+    // process
     void showProcessInfo();
     void getProcessInfo();
-    //
+    // used
+    void get_CPU(CPU &cpu);
 
 private:
     Ui::MainWindow *ui;
@@ -72,13 +78,24 @@ private:
     QStandardItemModel *model;
     // process info
     vector<PRO> list, show_list;
+    // used info
+    CPU cpu1;
+    CPU cpu2;
+    CPU *cpu1p;
+    CPU *cpu2p;
+    double cpu_res;
+    QLabel *cpu_label;
+    QProgressBar *cpu_progressBar;
+    QLabel *mem_label;
+
 
     // status line
     QLabel *label;
-    QString status;
+    QString status_text;
 private slots:
     void updateStatus();
-
+    void calu_CPU();
+    void test();
 };
 
 
