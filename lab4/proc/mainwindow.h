@@ -23,8 +23,14 @@
 
 // C/C++
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <pthread.h>
+#include <sys/stat.h>
+#include <pwd.h> /* file own  */
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -47,10 +53,15 @@ public:
     void addProcess();
     void addUsed();
     // info
-    void getProcessInfo();
+
     void showProcessInfo();
+    void getProcessInfo();
+    //
+
 private:
     Ui::MainWindow *ui;
+    //
+
     // main ui, tab
     QTabWidget *tab;
     QWidget *basicInfo;
@@ -58,16 +69,17 @@ private:
     QWidget *used;
     // show process
     QTableView *tv;
+    QStandardItemModel *model;
     // process info
-    vector<PRO> pro_list;
-
-
+    vector<PRO> list, show_list;
 
     // status line
     QLabel *label;
     QString status;
 private slots:
     void updateStatus();
+
 };
+
 
 #endif // MAINWINDOW_H
