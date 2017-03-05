@@ -68,6 +68,12 @@ struct _CPU {
 
 
 // MEM
-
+typedef struct _MEM MEM;
+struct _MEM {
+    unsigned int total;
+    unsigned int free;  // unused
+    unsigned int buffer;	// 用来给文件做缓冲大小
+    unsigned int cached;    // 被高速缓冲存储器（cache memory）用的内存的大小
+};
 #endif // HEAD
 

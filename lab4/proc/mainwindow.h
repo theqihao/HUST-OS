@@ -97,7 +97,11 @@ private:
     vector<double> cpu_list;
     QLabel *cpu_graph;
     // 2:mem
+    MEM mem;
     QLabel *mem_label;
+    QProgressBar *mem_progressBar;
+    vector<double> mem_list;
+    QLabel *mem_graph;
 
     // status line
     QLabel *label;
@@ -106,7 +110,9 @@ private slots:
     void updateStatus();
     void calu_CPU();
     void cpu_line();
-    void test();
+    // 内存使用率(MEMUsedPerc)=100*(MemTotal-MemFree-Buffers-Cached)/MemTotal
+    void calu_MEM();
+    void mem_line();
 };
 
 

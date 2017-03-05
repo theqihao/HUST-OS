@@ -9,14 +9,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFixedSize(1000, 600);
     this->setWindowTitle("show proc");
 
-    // timer
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(updateStatus()));
-    connect(timer, SIGNAL(timeout()), this, SLOT(calu_CPU()));
-    connect(timer, SIGNAL(timeout()), this, SLOT(cpu_line()));
-    timer->start(1000);
-
-
     // status label
     label = new QLabel(this);
     label->setFixedSize(1000, 25);
@@ -28,146 +20,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // init
     initTab();
+
+    // timer
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateStatus()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(calu_CPU()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(cpu_line()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(calu_MEM()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(mem_line()));
+    timer->start(1000);
 }
-
-void MainWindow::addUsed() {
-    // CPU label
-    cpu_label = new QLabel(used);
-    QFont label_font("Courier", 16);
-    label_font.setBold(true);
-    cpu_label->setFont(label_font);
-    QPalette pelette;
-    pelette.setColor(QPalette::WindowText,Qt::blue);
-    cpu_label->setPalette(pelette);
-    cpu_label->setGeometry(QRect(20, 0, 300, 50)); //设local, size
-    cpu_label->setText("Loading........");
-    // CPU progressBar
-    cpu_progressBar = new QProgressBar(used);
-    cpu_progressBar->setRange(0,100);
-    cpu_progressBar->setValue(0);
-    cpu_progressBar->setOrientation(Qt::Horizontal);
-    cpu_progressBar->setGeometry(QRect(300, 16, 600, 20));
-    cpu_progressBar->setFont(label_font);
-    cpu_progressBar->setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center; } QProgressBar::chunk { background-color: rgb(0, 0, 255) }");
-    // cpu
-    cpu_graph = new QLabel(used);
-    cpu_graph->setGeometry(QRect(100, 50, 800, 160)); //设local, size
-
-    // x
-    QLabel *cpu_x = new QLabel(used);
-    QFont cpu_x_font("Courier", 10);
-    cpu_x->setFont(label_font);
-    cpu_x->setPalette(pelette);
-    cpu_x->setGeometry(QRect(900, 10, 100, 200)); //设local, size
-    cpu_x->setText("100%\n\n66%\n\n33%");
-    // y
-    QLabel *cpu_y = new QLabel(used);
-    QFont cpu_y_font("Courier", 10);
-    cpu_y->setFont(label_font);
-    cpu_y->setPalette(pelette);
-    cpu_y->setGeometry(QRect(100, 200, 900, 50)); //设local, size
-    cpu_y->setText("60                 40                    20                  0 (s)");
-
-    for (int i = 0; i < 60; i++) {
-        cpu_list.push_back(0);
-    }
-    // calu
-    cpu1p = &cpu1;
-    cpu2p = &cpu2;
-    get_CPU(*cpu1p);
-    cout << "addUsed finish" << endl;
-}
-
-void MainWindow::cpu_line() {
-    /*
-    cpu_list.clear();
-    for (int i = 0; i < 10; i++) {
-        cpu_list.push_back(27);
-    }
-    for (int i = 0; i < 10; i++) {
-        cpu_list.push_back(25);
-    }
-    for (int i = 0; i < 20; i++) {
-        cpu_list.push_back(75);
-    }
-    for (int i = 0; i < 20; i++) {
-        cpu_list.push_back(33);
-    }
-    */
-    QPixmap cpu_pix(800, 200);
-    QPainter cpu_painter(&cpu_pix);
-    QPen cpu_pen(Qt::blue);
-    //cpu_pen.setCapStyle(Qt::RoundCap);
-    cpu_pen.setJoinStyle(Qt::RoundJoin);
-    cpu_painter.setPen(cpu_pen);
-    cpu_painter.setBrush(QBrush(Qt::white));
-    cpu_painter.drawRect(0, 18, 800, 160);
-    cpu_pen.setWidth(2);
-    cpu_painter.setPen(cpu_pen);
-    for (int i = 0; i < 3; i++) {
-        cpu_painter.drawLine(0, 19 + 160 * (1 - i * 33 / 100.0), 1000, 19 + 160 * (1 - (i) * 33 / 100.0));
-    }
-    //cpu_painter.drawLine(0, 30, 300, 400);
-    // drawLine(int x1, int y1, int x2, int y2)
-    cpu_pen.setColor(Qt::black);
-    cpu_painter.setPen(cpu_pen);
-    for (unsigned int i = 1; i < cpu_list.size(); i++) {
-        cout << cpu_list[i] << endl;
-        cpu_painter.drawLine((i-1) * 820 / 60.0, 19 + 160 * (1 - cpu_list[i-1]/100), i * 820 / 60.0, 19 + 160 * (1 - cpu_list[i]/100));
-    }
-
-    cout << cpu_list.size() << endl;
-    cpu_graph->setPixmap(cpu_pix);
-}
-
-
-void MainWindow::get_CPU(CPU &cpu)
-{
-    char buf[128];
-    FILE *fp = fopen("/proc/stat", "r");
-    if (fp == NULL) {
-        QMessageBox::information(this, "error", "open file failed");
-    }
-    fgets(buf, sizeof(buf), fp);
-    sscanf(buf, "%s %u %u %u %u %u %u %u", cpu.name, &cpu.user, &cpu.nice, &cpu.system, &cpu.idle, &cpu.iowait, &cpu.irq, &cpu.softirq);
-    fclose(fp);
-}
-
-
-
-void MainWindow::calu_CPU()
-{
-    get_CPU(*cpu2p);
-    /*
-    CPU t1 to t2 sum = (user2+ nice2+ system2+ idle2+ iowait2+ irq2+ softirq2) - ( user1+ nice1+ system1+ idle1+ iowait1+ irq1+ softirq1)
-    CPU t1 to t2时idle = (idle2 - idle1)
-    CPU used =  1 - idle / sum间
-    */
-    double sum1 = cpu1p->user + cpu1p->nice + cpu1p->system + cpu1p->idle + cpu1p->iowait + cpu1p->irq + cpu1p->softirq;
-    double sum2 = cpu2p->user + cpu2p->nice + cpu2p->system + cpu2p->idle + cpu2p->iowait + cpu2p->irq + cpu2p->softirq;
-    double sub_sum = sum2 - sum1;
-    double sub_idle = cpu2p->idle - cpu1p->idle;
-    double cpu_res = (1 - (sub_idle) / (sub_sum)) * 100;
-
-    cpu_progressBar->setValue((int) cpu_res);
-    cpu_label->setText("CPU used : " + QString::number(cpu_res, 10, 2) + "%");
-    cpu_list.push_back(cpu_res);
-    while (cpu_list.size() > 60) {
-        cpu_list.erase(cpu_list.begin());
-    }
-    CPU *temp = cpu1p;
-    cpu1p = cpu2p;
-    cpu2p = temp;
-}
-
-
-
-
-
-
-
-
-
 
 
 void MainWindow::initTab() {
@@ -178,11 +40,12 @@ void MainWindow::initTab() {
     process = new QWidget;
     used = new QWidget;
     // add
-    tab->addTab(used, QString("used"));
     tab->addTab(process, QString("process"));
+    tab->addTab(used, QString("used"));
+
     tab->addTab(basicInfo, QString("basicInfo"));
 
-  //  addBasicInfo();
+    addBasicInfo();
   //  addProcess();
     addUsed();
 }
@@ -413,8 +276,228 @@ void MainWindow::showProcessInfo() {
     }
 }
 
+void MainWindow::addUsed() {
+    QFont label_font("Courier", 16);
+    label_font.setBold(true);
+    QPalette pelette;
+    pelette.setColor(QPalette::WindowText,Qt::blue);
 
+    // CPU label
+    cpu_label = new QLabel(used);
+    cpu_label->setFont(label_font);
 
+    cpu_label->setPalette(pelette);
+    cpu_label->setGeometry(QRect(20, 0, 300, 50)); //设local, size
+    cpu_label->setText("Loading........");
+    // CPU progressBar
+    cpu_progressBar = new QProgressBar(used);
+    cpu_progressBar->setRange(0,100);
+    cpu_progressBar->setValue(0);
+    cpu_progressBar->setOrientation(Qt::Horizontal);
+    cpu_progressBar->setGeometry(QRect(300, 16, 600, 20));
+    cpu_progressBar->setFont(label_font);
+    cpu_progressBar->setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center; } QProgressBar::chunk { background-color: rgb(0, 0, 255) }");
+    // cpu
+    cpu_graph = new QLabel(used);
+    cpu_graph->setGeometry(QRect(100, 50, 800, 160)); //设local, size
+
+    // cpu x
+    QLabel *cpu_x = new QLabel(used);
+    cpu_x->setFont(label_font);
+    cpu_x->setPalette(pelette);
+    cpu_x->setGeometry(QRect(900, 10, 100, 200)); //设local, size
+    cpu_x->setText("100%\n\n66%\n\n33%");
+    // cpu y
+    QLabel *cpu_y = new QLabel(used);
+    cpu_y->setFont(label_font);
+    cpu_y->setPalette(pelette);
+    cpu_y->setGeometry(QRect(100, 200, 900, 50)); //设local, size
+    cpu_y->setText("60                 40                    20                  0 (s)");
+
+    // MEM label
+    mem_label = new QLabel(used);
+    mem_label->setFont(label_font);
+    pelette.setColor(QPalette::WindowText,Qt::green);
+    mem_label->setPalette(pelette);
+    mem_label->setGeometry(QRect(20, 250, 300, 50)); //设local, size
+    mem_label->setText("Loading........");
+
+    // MEM progressBar
+    mem_progressBar = new QProgressBar(used);
+    mem_progressBar->setRange(0,100);
+    mem_progressBar->setValue(0);
+    mem_progressBar->setOrientation(Qt::Horizontal);
+    mem_progressBar->setGeometry(QRect(300, 266, 600, 20));
+    mem_progressBar->setFont(label_font);
+    mem_progressBar->setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center; } QProgressBar::chunk { background-color: rgb(0, 255, 0) }");
+
+    // mem
+    mem_graph = new QLabel(used);
+    mem_graph->setGeometry(QRect(100, 300, 800, 160)); //设local, size
+
+    // mem x
+    QLabel *mem_x = new QLabel(used);
+    mem_x->setFont(label_font);
+    mem_x->setPalette(pelette);
+    mem_x->setGeometry(QRect(900, 260, 100, 200)); //设local, size
+    mem_x->setText("100%\n\n66%\n\n33%");
+    // mem y
+    QLabel *mem_y = new QLabel(used);
+    mem_y->setFont(label_font);
+    mem_y->setPalette(pelette);
+    mem_y->setGeometry(QRect(100, 450, 900, 50)); //设local, size
+    mem_y->setText("60                 40                    20                  0 (s)");
+
+    // init list
+    for (int i = 0; i < 60; i++) {
+        cpu_list.push_back(0);
+        mem_list.push_back(0);
+    }
+
+    // calu CPU
+    cpu1p = &cpu1;
+    cpu2p = &cpu2;
+    get_CPU(*cpu1p);
+    cout << "addUsed finish" << endl;
+}
+
+void MainWindow::get_CPU(CPU &cpu)
+{
+    char buf[128];
+    FILE *fp = fopen("/proc/stat", "r");
+    if (fp == NULL) {
+        QMessageBox::information(this, "error", "open file failed");
+    }
+    fgets(buf, sizeof(buf), fp);
+    sscanf(buf, "%s %u %u %u %u %u %u %u", cpu.name, &cpu.user, &cpu.nice, &cpu.system, &cpu.idle, &cpu.iowait, &cpu.irq, &cpu.softirq);
+    fclose(fp);
+}
+
+void MainWindow::calu_CPU()
+{
+    get_CPU(*cpu2p);
+    /*
+    CPU t1 to t2 sum = (user2+ nice2+ system2+ idle2+ iowait2+ irq2+ softirq2) - ( user1+ nice1+ system1+ idle1+ iowait1+ irq1+ softirq1)
+    CPU t1 to t2时idle = (idle2 - idle1)
+    CPU used =  1 - idle / sum间
+    */
+    double sum1 = cpu1p->user + cpu1p->nice + cpu1p->system + cpu1p->idle + cpu1p->iowait + cpu1p->irq + cpu1p->softirq;
+    double sum2 = cpu2p->user + cpu2p->nice + cpu2p->system + cpu2p->idle + cpu2p->iowait + cpu2p->irq + cpu2p->softirq;
+    double sub_sum = sum2 - sum1;
+    double sub_idle = cpu2p->idle - cpu1p->idle;
+    double cpu_res = (1 - (sub_idle) / (sub_sum)) * 100;
+
+    cpu_progressBar->setValue((int) cpu_res);
+    cpu_label->setText("CPU used : " + QString::number(cpu_res, 10, 2) + "%");
+    cpu_list.push_back(cpu_res);
+    while (cpu_list.size() > 60) {
+        cpu_list.erase(cpu_list.begin());
+    }
+    CPU *temp = cpu1p;
+    cpu1p = cpu2p;
+    cpu2p = temp;
+}
+
+void MainWindow::cpu_line() {
+    /*
+    cpu_list.clear();
+    for (int i = 0; i < 10; i++) {
+        cpu_list.push_back(27);
+    }
+    for (int i = 0; i < 10; i++) {
+        cpu_list.push_back(25);
+    }
+    for (int i = 0; i < 20; i++) {
+        cpu_list.push_back(75);
+    }
+    for (int i = 0; i < 20; i++) {
+        cpu_list.push_back(33);
+    }
+*/
+    QPixmap cpu_pix(800, 200);
+    QPainter cpu_painter(&cpu_pix);
+    QPen cpu_pen(Qt::blue);
+    //cpu_pen.setCapStyle(Qt::RoundCap);
+    cpu_pen.setJoinStyle(Qt::RoundJoin);
+    cpu_painter.setPen(cpu_pen);
+    cpu_painter.setBrush(QBrush(Qt::white));
+    cpu_painter.drawRect(0, 18, 800, 160);
+    cpu_pen.setWidth(2);
+    cpu_painter.setPen(cpu_pen);
+    for (int i = 0; i < 3; i++) {
+        cpu_painter.drawLine(0, 19 + 160 * (1 - i * 33 / 100.0), 1000, 19 + 160 * (1 - (i) * 33 / 100.0));
+    }
+    //cpu_painter.drawLine(0, 30, 300, 400);
+    // drawLine(int x1, int y1, int x2, int y2)
+    cpu_pen.setColor(Qt::black);
+    cpu_painter.setPen(cpu_pen);
+    for (unsigned int i = 1; i < cpu_list.size(); i++) {
+        cpu_painter.drawLine((i-1) * 820 / 60.0, 19 + 160 * (1 - cpu_list[i-1]/100), i * 820 / 60.0, 19 + 160 * (1 - cpu_list[i]/100));
+    }
+    cpu_graph->setPixmap(cpu_pix);
+}
+
+void MainWindow::calu_MEM() {
+    FILE *fp = popen("cat /proc/meminfo | grep MemTotal | awk -F' ' '{print $2}'", "r");
+    if (fp == NULL) {
+        QMessageBox::information(this, "error", "open file failed");
+    }
+    fscanf(fp, "%ud", &mem.total);
+    fp = popen("cat /proc/meminfo | grep MemFree | awk -F' ' '{print $2}'", "r");
+    if (fp == NULL) {
+        QMessageBox::information(this, "error", "open file failed");
+    }
+    fscanf(fp, "%ud", &mem.free);
+    fp = popen("cat /proc/meminfo | grep Buffers | awk -F' ' '{print $2}'", "r");
+    if (fp == NULL) {
+        QMessageBox::information(this, "error", "open file failed");
+    }
+    fscanf(fp, "%ud", &mem.buffer);
+    fp = popen("cat /proc/meminfo | grep Cached | awk -F' ' '{print $2}'", "r");
+    if (fp == NULL) {
+        QMessageBox::information(this, "error", "open file failed");
+    }
+    fscanf(fp, "%ud", &mem.cached);
+    fclose(fp);
+    MEM mem_show = mem;
+    //cout << mem.total << " " << mem.free << " " << mem.buffer << " " <<  mem.cached << endl;
+    // 内存使用率(MEMUsedPerc)=100*(MemTotal-MemFree-Buffers-Cached)/MemTotal
+    double mem_res = 100.0 * (mem_show.total - mem_show.free - mem_show.buffer - mem_show.cached) / (1.0 * mem_show.total);
+    mem_progressBar->setValue((int) mem_res);
+    mem_label->setText("MEM used : " + QString::number(mem_res, 10, 2) + "%");
+    mem_list.push_back(mem_res);
+    while (mem_list.size() > 60) {
+        mem_list.erase(mem_list.begin());
+    }
+}
+
+void MainWindow::mem_line() {
+    QPixmap mem_pix(800, 200);
+    QPainter mem_painter(&mem_pix);
+    QPen mem_pen(Qt::green);
+
+    //cpu_pen.setCapStyle(Qt::RoundCap);
+    mem_pen.setJoinStyle(Qt::RoundJoin);
+    mem_painter.setPen(mem_pen);
+    mem_painter.setBrush(QBrush(Qt::white));
+    mem_painter.drawRect(0, 18, 800, 160);
+    mem_pen.setWidth(2);
+
+    mem_painter.setPen(mem_pen);
+    for (int i = 0; i < 3; i++) {
+        mem_painter.drawLine(0, 19 + 160 * (1 - i * 33 / 100.0), 1000, 19 + 160 * (1 - (i) * 33 / 100.0));
+    }
+
+    //cpu_painter.drawLine(0, 30, 300, 400);
+    // drawLine(int x1, int y1, int x2, int y2)
+    mem_pen.setColor(Qt::black);
+    mem_painter.setPen(mem_pen);
+    for (unsigned int i = 1; i < mem_list.size(); i++) {
+        if (mem_list[i-1] == 0) continue;
+        mem_painter.drawLine((i-1) * 820 / 60.0, 19 + 160 * (1 - mem_list[i-1]/100), i * 820 / 60.0, 19 + 160 * (1 - mem_list[i]/100));
+    }
+    mem_graph->setPixmap(mem_pix);
+}
 
 
 void MainWindow::updateStatus() {
@@ -434,16 +517,22 @@ void MainWindow::updateStatus() {
     label->setText(status_text);
 }
 
-void MainWindow::test() {
-    cout << "test" << endl;
-}
-
 MainWindow::~MainWindow()
 {
     delete ui;
-
     delete basicInfo;
     delete process;
     delete used;
     delete tab;
+
+    // cpu
+    delete cpu_label;
+    delete cpu_progressBar;
+    delete cpu_graph;
+    // mem
+    delete mem_label;
+    delete mem_progressBar;
+    delete mem_graph;
+    // status line
+    delete label;
 }
