@@ -24,10 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // timer
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStatus()));
-    connect(timer, SIGNAL(timeout()), this, SLOT(calu_CPU()));
-    connect(timer, SIGNAL(timeout()), this, SLOT(cpu_line()));
-    connect(timer, SIGNAL(timeout()), this, SLOT(calu_MEM()));
-    connect(timer, SIGNAL(timeout()), this, SLOT(mem_line()));
+   // connect(timer, SIGNAL(timeout()), this, SLOT(calu_CPU()));
+   // connect(timer, SIGNAL(timeout()), this, SLOT(cpu_line()));
+  //  connect(timer, SIGNAL(timeout()), this, SLOT(calu_MEM()));
+   // connect(timer, SIGNAL(timeout()), this, SLOT(mem_line()));
     timer->start(1000);
 }
 
@@ -46,7 +46,7 @@ void MainWindow::initTab() {
     tab->addTab(basicInfo, QString("basicInfo"));
 
     addBasicInfo();
-  //  addProcess();
+    addProcess();
     addUsed();
 }
 
