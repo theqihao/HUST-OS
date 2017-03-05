@@ -16,6 +16,7 @@ struct PROCESSINFO {
     double cpu;
     int mem;
     int pri;
+    bool vaild;
 
     PROCESSINFO() {
 
@@ -24,6 +25,7 @@ struct PROCESSINFO {
         cpu = 100;
         mem = 100;
         pri = 400;
+        vaild = false;
     }
 
     bool operator == (const PRO &b) const {

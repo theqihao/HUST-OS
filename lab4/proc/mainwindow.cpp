@@ -24,13 +24,233 @@ MainWindow::MainWindow(QWidget *parent) :
     // timer
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStatus()));
-   // connect(timer, SIGNAL(timeout()), this, SLOT(calu_CPU()));
-   // connect(timer, SIGNAL(timeout()), this, SLOT(cpu_line()));
-  //  connect(timer, SIGNAL(timeout()), this, SLOT(calu_MEM()));
-   // connect(timer, SIGNAL(timeout()), this, SLOT(mem_line()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(getProcessInfo()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(calu_CPU()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(cpu_line()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(calu_MEM()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(mem_line()));
     timer->start(1000);
 }
 
+
+void MainWindow::addProcess() {
+    tv = new QTableView(process);
+    model = new QStandardItemModel();
+    int i = 0;
+    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("Proecss name")));
+    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("User name")));
+    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("State")));
+    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("PID")));
+    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("PPID")));
+    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("%CPU")));
+    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("Memory (kB)")));
+    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("Priority")));
+
+    tv->setModel(model);
+    // size
+    tv->resize(1000, 550);
+    // column width
+    i = 0;
+    tv->setColumnWidth(i++,200);
+    tv->setColumnWidth(i++,100);
+    tv->setColumnWidth(i++,100);
+    tv->setColumnWidth(i++,100);
+    tv->setColumnWidth(i++,100);
+    tv->setColumnWidth(i++,100);
+    tv->setColumnWidth(i++,150);
+    tv->setColumnWidth(i++,100);
+
+    // set
+    tv->setMouseTracking(true);
+    // select row
+    tv->setSelectionBehavior(QAbstractItemView::SelectRows);
+}
+
+void MainWindow::getProcessInfo() {
+    PRO pro;
+    DIR *dir = NULL;
+    struct dirent *dirp = NULL;
+    struct stat buf;
+    char open_name[100];
+    char full_name[100];
+    char shell[100];
+    char temp[100];
+
+
+    // begin
+    list.clear();
+    dir = opendir("/proc");
+    if (dir == NULL) {
+        cout << "open /proc error" << endl;
+    }
+    int i = 0;
+    while ((dirp = readdir(dir)) != NULL) {
+
+        // if not process, continue
+        char c = dirp->d_name[0];
+        if (!(c >= '0' && c <= '9')) {
+            continue;
+        }
+        // get full_name
+        sprintf(full_name, "/proc/%s", dirp->d_name);
+        lstat(full_name, &buf);
+        // if is a dir,
+        if (!S_ISDIR(buf.st_mode)) {
+            continue;
+        }
+        // User
+        if (getpwuid(buf.st_uid)->pw_name != NULL)
+            strcpy(pro.user, getpwuid(buf.st_uid)->pw_name);
+        // name
+        sprintf(open_name, "%s/status", full_name);
+        FILE *fp1 = fopen(open_name, "r");
+        if (fp1 == NULL) {
+            cout << "open " << open_name << " error" << endl;
+          //  fclose(fp1);
+            continue;
+        }
+        fscanf(fp1, "Name: %s\n", pro.name);
+        // status
+        fscanf(fp1, "State: %s %s\n", pro.state, temp);
+
+        // PID, PPID
+        fscanf(fp1, "Tgid:	%d\n", &pro.pid);
+        fscanf(fp1, "Ngid:	%d\n", &pro.ppid);
+
+        fscanf(fp1, "Pid:	%d\n", &pro.pid);
+        fscanf(fp1, "PPid:	%d\n", &pro.ppid);
+        int i = 10;
+        while (i--) fgets(temp, 100, fp1);
+        fscanf(fp1, "VmSize:	  %d kB\n", &pro.mem);
+
+        fclose(fp1);
+        // mem  VmSize
+/*
+        sprintf(shell, "cat %s/status | grep VmSize | awk -F' ' '{print $2}'", full_name);
+        FILE *fp2 = popen(shell, "r");
+        if (fp2 == NULL) {
+            cout << "open " << shell << " error" << endl;
+           // pclose(fp2);
+            continue;
+        }
+        fscanf(fp2, "%d", &pro.mem);
+        pclose(fp2);
+        // cpu
+*/
+        // pri  nice
+        sprintf(open_name, "%s/stat", full_name);
+        FILE *fp3 = fopen(open_name, "r");
+        if (fp3 == NULL) {
+            cout << "open " << open_name << " error" << endl;
+           // pclose(fp2);
+            continue;
+        }
+        fscanf(fp3, "%d %s %s", &pro.pri, temp, temp);
+        for (int i = 0; i < 16; i++) {
+            fscanf(fp3, "%d", &pro.pri);
+        }
+        fclose(fp3);
+        // end
+        list.push_back(pro);
+        if (i++ == 100) {
+          //  break;
+        }
+    }
+    closedir(dir);
+    showProcessInfo();
+}
+
+void MainWindow::showProcessInfo() {
+    // init
+    for (unsigned int i = 0; i < show_list.size(); i++) {
+        show_list[i].vaild = false;
+    }
+    // add modify
+    for (unsigned int i = 0; i < list.size(); i++) {
+        int ret = findProcess(show_list, list[i].pid);
+        if (ret == -1) {
+            list[i].vaild = true;
+            show_list.push_back(list[i]);
+            // insert
+            int j = 0;
+            int row = model->rowCount();
+            model->setItem(row, j++, new QStandardItem(QString(list[i].name)));
+            model->setItem(row, j++, new QStandardItem(QString(list[i].user)));
+            model->setItem(row, j++, new QStandardItem(QString(list[i].state)));
+            model->setItem(row, j++, new QStandardItem(QString::number(list[i].pid)));
+            model->setItem(row, j++, new QStandardItem(QString::number(list[i].ppid)));
+            model->setItem(row, j++, new QStandardItem(QString::number(list[i].cpu)));
+            model->setItem(row, j++, new QStandardItem(QString::number(list[i].mem)));
+            model->setItem(row, j++, new QStandardItem(QString::number(list[i].pri)));
+          //  model->removeRows(0, 7);
+        } else {
+            if (!(list[i] == show_list[ret])) {
+                show_list[ret] = list[i];
+                // replace
+                int j = 0;
+                model->setItem(ret, j++, new QStandardItem(QString(show_list[ret].name)));
+                model->setItem(ret, j++, new QStandardItem(QString(show_list[ret].user)));
+                model->setItem(ret, j++, new QStandardItem(QString(show_list[ret].state)));
+                model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].pid)));
+                model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].ppid)));
+                model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].cpu)));
+                model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].mem)));
+                model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].pri)));
+            }
+            show_list[ret].vaild = true;
+        }
+    }
+    // delete
+    for (unsigned int i = 0; i < show_list.size(); i++) {
+        if (show_list[i].vaild == false) {
+            show_list.erase(show_list.begin() + i);
+            model->removeRow(i);
+            i--;
+        }
+    }
+/*
+    for (unsigned int i = 0; i < show_list.size(); i++)
+    {
+        int j = 0;
+        model->setItem(i, j++, new QStandardItem(QString(show_list[i].name)));
+        model->setItem(i, j++, new QStandardItem(QString(show_list[i].user)));
+        model->setItem(i, j++, new QStandardItem(QString(show_list[i].state)));
+        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].pid)));
+        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].ppid)));
+        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].cpu)));
+        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].mem)));
+        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].pri)));
+    }
+*/
+}
+
+// 基于pid顺序的二分查找
+int MainWindow::findProcess(vector<PRO> &ll, int x) {
+    /*
+    if (ll.size() == 0) return -1;
+    int low = 0;
+    int high = ll.size();
+    int mid;
+
+    while (high >= low) {
+        mid = (low + high) / 2;
+        if (ll[mid].pid == x) {
+            return mid;
+        } else if (ll[mid].pid > x) {
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return -1;
+    */
+    for (int i = 0; i < ll.size(); i++) {
+        if (ll[i].pid == x) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void MainWindow::initTab() {
     // malloc space
@@ -125,155 +345,6 @@ void MainWindow::addBasicInfo() {
     QFont label_font("Courier", 16);
     label_font.setBold(true);
     label->setFont(label_font);
-}
-
-void MainWindow::addProcess() {
-    tv = new QTableView(process);
-    model = new QStandardItemModel();
-    int i = 0;
-    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("Proecss name")));
-    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("User name")));
-    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("State")));
-    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("PID")));
-    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("PPID")));
-    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("%CPU")));
-    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("Memory (kB)")));
-    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("Priority")));
-
-    tv->setModel(model);
-    // size
-    tv->resize(1000, 550);
-    // column width
-    i = 0;
-    tv->setColumnWidth(i++,200);
-    tv->setColumnWidth(i++,100);
-    tv->setColumnWidth(i++,100);
-    tv->setColumnWidth(i++,100);
-    tv->setColumnWidth(i++,100);
-    tv->setColumnWidth(i++,100);
-    tv->setColumnWidth(i++,150);
-    tv->setColumnWidth(i++,100);
-
-    // set
-    tv->setMouseTracking(true);
-    // select row
-    tv->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-
- //   getProcessInfo();
-   // showProcessInfo();
-}
-
-void MainWindow::getProcessInfo() {
-    PRO pro;
-    DIR *dir = NULL;
-    struct dirent *dirp = NULL;
-    struct stat buf;
-    char open_name[100];
-    char full_name[100];
-    char shell[100];
-    char temp[100];
-
-
-    // begin
-    list.clear();
-    dir = opendir("/proc");
-    if (dir == NULL) {
-        cout << "open /proc error" << endl;
-    }
-    while ((dirp = readdir(dir)) != NULL) {
-        // if not process, continue
-        char c = dirp->d_name[0];
-        if (!(c >= '0' && c <= '9')) {
-            continue;
-        }
-        // get full_name
-        sprintf(full_name, "/proc/%s", dirp->d_name);
-        lstat(full_name, &buf);
-        // if is a dir,
-        if (!S_ISDIR(buf.st_mode)) {
-            continue;
-        }
-        // User
-        if (getpwuid(buf.st_uid)->pw_name != NULL)
-            strcpy(pro.user, getpwuid(buf.st_uid)->pw_name);
-        // name
-        sprintf(open_name, "%s/status", full_name);
-        FILE *fp = fopen(open_name, "r");
-        if (fp == NULL) {
-            cout << "open " << open_name << " error" << endl;
-            fclose(fp);
-            continue;
-        }
-        fscanf(fp, "Name: %s\n", pro.name);
-
-        // status
-        fscanf(fp, "State: %s %s\n", pro.state, temp);
-
-        // PID, PPID
-/*
-        sprintf(shell, "cat %s/status | grep Pid", full_name);
-        fp = popen(shell, "r");
-        if (fp == NULL) {
-            cout << "open " << shell << "error" << endl;
-            fclose(fp);
-            continue;
-        }
-*/
-        fscanf(fp, "Tgid:	%d\n", &pro.pid);
-        fscanf(fp, "Ngid:	%d\n", &pro.ppid);
-
-        fscanf(fp, "Pid:	%d\n", &pro.pid);
-        fscanf(fp, "PPid:	%d\n", &pro.ppid);
-
-        // mem  VmSize
-
-        sprintf(shell, "cat %s/status | grep VmSize | awk -F' ' '{print $2}'", full_name);
-        fp = popen(shell, "r");
-        if (fp == NULL) {
-            cout << "open " << shell << "error" << endl;
-            fclose(fp);
-            continue;
-        }
-        fscanf(fp, "%d", &pro.mem);
-
-        // cpu
-
-
-
-        // pri  nice
-
-        sprintf(open_name, "%s/stat", full_name);
-        fp = fopen(open_name, "r");
-        fscanf(fp, "%d %s %s", &pro.pri, temp, temp);
-        for (int i = 0; i < 16; i++) {
-            fscanf(fp, "%d", &pro.pri);
-        }
-        // end
-        fclose(fp);
-        list.push_back(pro);
-    }
-    closedir(dir);
-
-}
-
-void MainWindow::showProcessInfo() {
-    int row = model->rowCount();
-    model->removeRows(0, row);// delete 0 ~ row
-    //patient_model->removeRows(0, patient_model->rowCount());
-    show_list.assign(list.begin(), list.end());
-    for (unsigned int i = 0; i < show_list.size(); i++)
-    {
-        int j = 0;
-        model->setItem(i, j++, new QStandardItem(QString(show_list[i].name)));
-        model->setItem(i, j++, new QStandardItem(QString(show_list[i].user)));
-        model->setItem(i, j++, new QStandardItem(QString(show_list[i].state)));
-        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].pid)));
-        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].ppid)));
-        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].cpu)));
-        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].mem)));
-        model->setItem(i, j++, new QStandardItem(QString::number(show_list[i].pri)));
-    }
 }
 
 void MainWindow::addUsed() {
@@ -438,31 +509,29 @@ void MainWindow::cpu_line() {
 }
 
 void MainWindow::calu_MEM() {
-    FILE *fp = popen("cat /proc/meminfo | grep MemTotal | awk -F' ' '{print $2}'", "r");
+    char buf[128];
+    char temp[128];
+    unsigned int ava;
+    FILE *fp = fopen("/proc/meminfo", "r");
     if (fp == NULL) {
         QMessageBox::information(this, "error", "open file failed");
     }
-    fscanf(fp, "%ud", &mem.total);
-    fp = popen("cat /proc/meminfo | grep MemFree | awk -F' ' '{print $2}'", "r");
-    if (fp == NULL) {
-        QMessageBox::information(this, "error", "open file failed");
-    }
-    fscanf(fp, "%ud", &mem.free);
-    fp = popen("cat /proc/meminfo | grep Buffers | awk -F' ' '{print $2}'", "r");
-    if (fp == NULL) {
-        QMessageBox::information(this, "error", "open file failed");
-    }
-    fscanf(fp, "%ud", &mem.buffer);
-    fp = popen("cat /proc/meminfo | grep Cached | awk -F' ' '{print $2}'", "r");
-    if (fp == NULL) {
-        QMessageBox::information(this, "error", "open file failed");
-    }
-    fscanf(fp, "%ud", &mem.cached);
+    fgets(buf, 128, fp);
+    sscanf(buf, "%s %ud", temp, &mem.total);
+    fgets(buf, 128, fp);
+    sscanf(buf, "%s %ud", temp, &mem.free);
+    fgets(buf, 128, fp);
+    sscanf(buf, "%s %ud", temp, &ava);
+    fgets(buf, 128, fp);
+    sscanf(buf, "%s %ud", temp, &mem.buffer);
+    fgets(buf, 128, fp);
+    sscanf(buf, "%s %ud", temp, &mem.cached);
     fclose(fp);
     MEM mem_show = mem;
-    //cout << mem.total << " " << mem.free << " " << mem.buffer << " " <<  mem.cached << endl;
+  //  cout << mem.total << " " << mem.free << " " << mem.buffer << " " <<  mem.cached << endl;
     // 内存使用率(MEMUsedPerc)=100*(MemTotal-MemFree-Buffers-Cached)/MemTotal
-    double mem_res = 100.0 * (mem_show.total - mem_show.free - mem_show.buffer - mem_show.cached) / (1.0 * mem_show.total);
+  //  double mem_res = 100.0 * (mem_show.total - mem_show.free - mem_show.buffer - mem_show.cached) / (1.0 * mem_show.total);
+    double mem_res = 100.0 * (mem_show.total - ava) / (1.0 * mem_show.total);
     mem_progressBar->setValue((int) mem_res);
     mem_label->setText("MEM used : " + QString::number(mem_res, 10, 2) + "%");
     mem_list.push_back(mem_res);
@@ -498,7 +567,6 @@ void MainWindow::mem_line() {
     }
     mem_graph->setPixmap(mem_pix);
 }
-
 
 void MainWindow::updateStatus() {
     QDateTime time = QDateTime::currentDateTime();

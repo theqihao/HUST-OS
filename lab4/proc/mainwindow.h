@@ -39,9 +39,7 @@
 #include <pwd.h> /* file own  */
 #include <iostream>
 #include <vector>
-#include <QList>
-#include <queue>
-#include <deque>
+#include <algorithm>
 
 using namespace std;
 
@@ -65,13 +63,11 @@ public:
     void addUsed();
     // info
 
-
     // process
     void showProcessInfo();
-    void getProcessInfo();
+    int findProcess(vector<PRO> &ll, int x);
     // used
     void get_CPU(CPU &cpu);
-
 private:
     Ui::MainWindow *ui;
     //
@@ -85,7 +81,9 @@ private:
     QTableView *tv;
     QStandardItemModel *model;
     // process info
-    vector<PRO> list, show_list;
+    int ROWS;
+    vector<PRO> list;
+    vector<PRO> show_list;
     // used info
     // 1: cpu
     CPU cpu1;
@@ -106,6 +104,9 @@ private:
     // status line
     QLabel *label;
     QString status_text;
+private slots:
+    void getProcessInfo();
+
 private slots:
     void updateStatus();
     void calu_CPU();
