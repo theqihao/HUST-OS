@@ -30,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(calu_MEM()));
     connect(timer, SIGNAL(timeout()), this, SLOT(mem_line()));
     timer->start(1000);
+    connect(tv,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(clicked_rightMenu(QPoint)));
+    connect(killAction, SIGNAL(triggered()), this, SLOT(killProcess()));
+    connect(infoAction, SIGNAL(triggered()), this, SLOT(infoProcess()));
 }
 
 
@@ -64,7 +67,12 @@ void MainWindow::addProcess() {
     tv->setMouseTracking(true);
     // select row
     tv->setSelectionBehavior(QAbstractItemView::SelectRows);
+    // right clicked
+    tv->setContextMenuPolicy(Qt::CustomContextMenu);
+    createRightMenu();
 }
+
+
 
 void MainWindow::getProcessInfo() {
     PRO pro;
@@ -122,8 +130,17 @@ void MainWindow::getProcessInfo() {
         int i = 10;
         while (i--) fgets(temp, 100, fp1);
         fscanf(fp1, "VmSize:	  %d kB\n", &pro.mem);
-
         fclose(fp1);
+
+        FILE *fp2 = fopen(open_name, "r");
+        if (fp2 == NULL) {
+            cout << "open " << open_name << " error" << endl;
+          //  fclose(fp1);
+            continue;
+        }
+        fread(pro.info, 1024, 1, fp2);
+        fclose(fp2);
+
         // mem  VmSize
 /*
         sprintf(shell, "cat %s/status | grep VmSize | awk -F' ' '{print $2}'", full_name);
@@ -158,6 +175,33 @@ void MainWindow::getProcessInfo() {
     }
     closedir(dir);
     showProcessInfo();
+}
+
+int MainWindow::findProcess(vector<PRO> &ll, int x) {
+    /*
+    if (ll.size() == 0) return -1;
+    int low = 0;
+    int high = ll.size();
+    int mid;
+
+    while (high >= low) {
+        mid = (low + high) / 2;
+        if (ll[mid].pid == x) {
+            return mid;
+        } else if (ll[mid].pid > x) {
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return -1;
+    */
+    for (int i = 0; i < ll.size(); i++) {
+        if (ll[i].pid == x) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void MainWindow::showProcessInfo() {
@@ -224,32 +268,40 @@ void MainWindow::showProcessInfo() {
 */
 }
 
-// 基于pid顺序的二分查找
-int MainWindow::findProcess(vector<PRO> &ll, int x) {
-    /*
-    if (ll.size() == 0) return -1;
-    int low = 0;
-    int high = ll.size();
-    int mid;
+void MainWindow::createRightMenu() {
+    rightMenu = new QMenu;
+    killAction = new QAction("kill it", process);
+    infoAction = new QAction("more info", process);
+    rightMenu->addAction(killAction);
+    rightMenu->addAction(infoAction);
+}
 
-    while (high >= low) {
-        mid = (low + high) / 2;
-        if (ll[mid].pid == x) {
-            return mid;
-        } else if (ll[mid].pid > x) {
-            high = mid - 1;
-        } else {
-            low = mid + 1;
+void MainWindow::clicked_rightMenu(const QPoint &pos) {
+    rightMenu->exec(QCursor::pos());
+
+    QModelIndex current_index = tv->indexAt(pos);
+    QAbstractItemModel* m = (QAbstractItemModel *)current_index.model();
+    for(int columnIndex = 0;columnIndex < m->columnCount();columnIndex++){
+        QModelIndex x = m->index(current_index.row(),columnIndex);
+        QString s = x.data().toString();
+        if (columnIndex == 3) {
+            PID = s.toInt(0, 10);
+        }
+       // QMessageBox::information(this, "info", s);
+    }
+}
+
+void MainWindow::killProcess() {
+    QMessageBox::information(this, "kill", "kill");
+
+}
+void MainWindow::infoProcess() {
+  //  QMessageBox::information(this, "info", "info");
+    for (unsigned int i = 0; i < show_list.size(); i++) {
+        if (show_list[i].pid == PID) {
+            QMessageBox::information(this, "more info", QString(show_list[i].info));
         }
     }
-    return -1;
-    */
-    for (int i = 0; i < ll.size(); i++) {
-        if (ll[i].pid == x) {
-            return i;
-        }
-    }
-    return -1;
 }
 
 void MainWindow::initTab() {

@@ -26,6 +26,10 @@
 #include <QWidget>
 #include <QPen>
 #include <QPixmap>
+#include <QCursor>
+#include <QMenu>
+#include <QAction>
+#include <QModelIndex>
 
 
 
@@ -66,8 +70,10 @@ public:
     // process
     void showProcessInfo();
     int findProcess(vector<PRO> &ll, int x);
+    void createRightMenu();
     // used
     void get_CPU(CPU &cpu);
+
 private:
     Ui::MainWindow *ui;
     //
@@ -80,10 +86,19 @@ private:
     // show process
     QTableView *tv;
     QStandardItemModel *model;
+
+    int PID;
+    QMenu *rightMenu;
+    QAction *killAction;
+    QAction *infoAction;
+
+
+
     // process info
     int ROWS;
     vector<PRO> list;
     vector<PRO> show_list;
+
     // used info
     // 1: cpu
     CPU cpu1;
@@ -106,7 +121,10 @@ private:
     QString status_text;
 private slots:
     void getProcessInfo();
-
+    void clicked_rightMenu(const QPoint &pos);
+    //
+    void killProcess();
+    void infoProcess();
 private slots:
     void updateStatus();
     void calu_CPU();
@@ -114,6 +132,7 @@ private slots:
     // 内存使用率(MEMUsedPerc)=100*(MemTotal-MemFree-Buffers-Cached)/MemTotal
     void calu_MEM();
     void mem_line();
+
 };
 
 

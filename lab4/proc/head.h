@@ -10,6 +10,7 @@ struct PROCESSINFO {
     char name[32];
     char user[32];
     char state[32];
+    char info[1024];
     int pid;
     int ppid;
 
