@@ -30,6 +30,8 @@
 #include <QMenu>
 #include <QAction>
 #include <QModelIndex>
+#include <QInputDialog>
+#include <QByteArray>
 
 
 

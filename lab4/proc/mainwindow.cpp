@@ -272,7 +272,11 @@ void MainWindow::createRightMenu() {
     rightMenu = new QMenu;
     killAction = new QAction("kill it", process);
     infoAction = new QAction("more info", process);
+    QAction *action = new QAction(process);
+    action->setSeparator(true);
+
     rightMenu->addAction(killAction);
+    rightMenu->addAction(action);
     rightMenu->addAction(infoAction);
 }
 
@@ -293,7 +297,18 @@ void MainWindow::clicked_rightMenu(const QPoint &pos) {
 
 void MainWindow::killProcess() {
     QMessageBox::information(this, "kill", "kill");
-
+    QString passWord;
+    QString sudo;
+    char* command;
+    bool OK;
+    QByteArray ba;
+    passWord = QInputDialog::getText(this,"Input password","password", QLineEdit::Normal, "", &OK);
+    if(OK) {
+        sudo = QString("echo %1 | sudo -S shutdown -h now").arg(passWord);
+        ba = sudo.toLatin1();
+        command = ba.data();
+        system(command);
+    }
 }
 void MainWindow::infoProcess() {
   //  QMessageBox::information(this, "info", "info");
