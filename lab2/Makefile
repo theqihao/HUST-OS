@@ -11,4 +11,4 @@ main.o:
 #clean
 .PHONY : clean
 clean: 
-	-rm -f *.o *~
+	-rm -f *.o *~ qihao out.txt
