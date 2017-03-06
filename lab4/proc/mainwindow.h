@@ -49,7 +49,6 @@
 
 using namespace std;
 
-
 namespace Ui {
 class MainWindow;
 }
@@ -67,8 +66,6 @@ public:
     void addBasicInfo();
     void addProcess();
     void addUsed();
-    // info
-
     // process
     void showProcessInfo();
     int findProcess(vector<PRO> &ll, int x);
@@ -78,7 +75,6 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    //
 
     // main ui, tab
     QTabWidget *tab;
@@ -88,13 +84,10 @@ private:
     // show process
     QTableView *tv;
     QStandardItemModel *model;
-
     int PID;
     QMenu *rightMenu;
     QAction *killAction;
     QAction *infoAction;
-
-
 
     // process info
     int ROWS;
@@ -121,20 +114,21 @@ private:
     // status line
     QLabel *label;
     QString status_text;
+
 private slots:
-    void getProcessInfo();
-    void clicked_rightMenu(const QPoint &pos);
-    //
-    void killProcess();
-    void infoProcess();
-private slots:
-    void updateStatus();
+    // cpu
     void calu_CPU();
     void cpu_line();
     // 内存使用率(MEMUsedPerc)=100*(MemTotal-MemFree-Buffers-Cached)/MemTotal
     void calu_MEM();
     void mem_line();
-
+    // process
+    void getProcessInfo();
+    void clicked_rightMenu(const QPoint &pos);
+    void killProcess();
+    void infoProcess();
+    // status line
+    void updateStatus();
 };
 
 

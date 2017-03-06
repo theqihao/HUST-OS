@@ -30,11 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(calu_MEM()));
     connect(timer, SIGNAL(timeout()), this, SLOT(mem_line()));
     timer->start(1000);
-    connect(tv,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(clicked_rightMenu(QPoint)));
-    connect(killAction, SIGNAL(triggered()), this, SLOT(killProcess()));
-    connect(infoAction, SIGNAL(triggered()), this, SLOT(infoProcess()));
+    connect(tv, SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(clicked_rightMenu(QPoint)));
 }
-
 
 void MainWindow::addProcess() {
     tv = new QTableView(process);
@@ -69,10 +66,9 @@ void MainWindow::addProcess() {
     tv->setSelectionBehavior(QAbstractItemView::SelectRows);
     // right clicked
     tv->setContextMenuPolicy(Qt::CustomContextMenu);
+    // createRightMenu();
     createRightMenu();
 }
-
-
 
 void MainWindow::getProcessInfo() {
     PRO pro;
@@ -81,7 +77,6 @@ void MainWindow::getProcessInfo() {
     struct stat buf;
     char open_name[100];
     char full_name[100];
-    char shell[100];
     char temp[100];
 
 
@@ -91,7 +86,6 @@ void MainWindow::getProcessInfo() {
     if (dir == NULL) {
         cout << "open /proc error" << endl;
     }
-    int i = 0;
     while ((dirp = readdir(dir)) != NULL) {
 
         // if not process, continue
@@ -169,9 +163,6 @@ void MainWindow::getProcessInfo() {
         fclose(fp3);
         // end
         list.push_back(pro);
-        if (i++ == 100) {
-          //  break;
-        }
     }
     closedir(dir);
     showProcessInfo();
@@ -196,7 +187,7 @@ int MainWindow::findProcess(vector<PRO> &ll, int x) {
     }
     return -1;
     */
-    for (int i = 0; i < ll.size(); i++) {
+    for (unsigned int i = 0; i < ll.size(); i++) {
         if (ll[i].pid == x) {
             return i;
         }
@@ -226,7 +217,6 @@ void MainWindow::showProcessInfo() {
             model->setItem(row, j++, new QStandardItem(QString::number(list[i].cpu)));
             model->setItem(row, j++, new QStandardItem(QString::number(list[i].mem)));
             model->setItem(row, j++, new QStandardItem(QString::number(list[i].pri)));
-          //  model->removeRows(0, 7);
         } else {
             if (!(list[i] == show_list[ret])) {
                 show_list[ret] = list[i];
@@ -280,9 +270,8 @@ void MainWindow::createRightMenu() {
     rightMenu->addAction(infoAction);
 }
 
-void MainWindow::clicked_rightMenu(const QPoint &pos) {
-    rightMenu->exec(QCursor::pos());
 
+void MainWindow::clicked_rightMenu(const QPoint &pos) {
     QModelIndex current_index = tv->indexAt(pos);
     QAbstractItemModel* m = (QAbstractItemModel *)current_index.model();
     for(int columnIndex = 0;columnIndex < m->columnCount();columnIndex++){
@@ -290,28 +279,41 @@ void MainWindow::clicked_rightMenu(const QPoint &pos) {
         QString s = x.data().toString();
         if (columnIndex == 3) {
             PID = s.toInt(0, 10);
+            cout << PID << endl;
         }
        // QMessageBox::information(this, "info", s);
     }
+
+
+
+    createRightMenu();
+    connect(killAction, SIGNAL(triggered()), this, SLOT(killProcess()));
+    connect(infoAction, SIGNAL(triggered()), this, SLOT(infoProcess()));
+    rightMenu->exec(QCursor::pos());
 }
 
 void MainWindow::killProcess() {
-    QMessageBox::information(this, "kill", "kill");
-    QString passWord;
+    QString password;
     QString sudo;
+    QString num;
     char* command;
     bool OK;
     QByteArray ba;
-    passWord = QInputDialog::getText(this,"Input password","password", QLineEdit::Normal, "", &OK);
+
+    password = QInputDialog::getText(this, "Input password","password", QLineEdit::Normal, "", &OK);
+    num = QString::number(PID);
     if(OK) {
-        sudo = QString("echo %1 | sudo -S shutdown -h now").arg(passWord);
+        sudo = QString("echo %1 | kill -s 9 %2").arg(password).arg(num);
+        //  cout << PID << endl;
+        //   QMessageBox::information(this, "kill", sudo);
         ba = sudo.toLatin1();
         command = ba.data();
         system(command);
+        //  QMessageBox::information(this, "kill", "kill it");
     }
+
 }
 void MainWindow::infoProcess() {
-  //  QMessageBox::information(this, "info", "info");
     for (unsigned int i = 0; i < show_list.size(); i++) {
         if (show_list[i].pid == PID) {
             QMessageBox::information(this, "more info", QString(show_list[i].info));
@@ -326,12 +328,11 @@ void MainWindow::initTab() {
     basicInfo = new QWidget;
     process = new QWidget;
     used = new QWidget;
-    // add
-    tab->addTab(process, QString("process"));
-    tab->addTab(used, QString("used"));
-
+    // add tab
     tab->addTab(basicInfo, QString("basicInfo"));
-
+    tab->addTab(used, QString("used"));
+    tab->addTab(process, QString("process"));
+    // add info
     addBasicInfo();
     addProcess();
     addUsed();

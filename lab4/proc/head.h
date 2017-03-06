@@ -20,7 +20,6 @@ struct PROCESSINFO {
     bool vaild;
 
     PROCESSINFO() {
-
         pid = 0;
         ppid = 0;
         cpu = 100;
@@ -66,9 +65,6 @@ struct _CPU {
     unsigned int irq;	// handware interupt
     unsigned int softirq; // soft interupt
 };
-
-
-
 
 // MEM
 typedef struct _MEM MEM;
