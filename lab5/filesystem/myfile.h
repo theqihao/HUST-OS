@@ -41,7 +41,7 @@ struct _Inode {
 };
 
 struct _Dir {
-    char name[32];
+    char name[24];
     int inum;
 };
 
@@ -56,24 +56,30 @@ int cur_fnum;
 Dir cur_files[MaxPerDir];
 
 
-
-
-// op
+// init, end
+void usage();
 int init();
 int init_root();
 int end();
+// create dir , file
 int mkfile(int pa_inum, char *name, int type);
+int get_itype(int inum);
 int get_inum();
 int get_bnum();
 int init_dir(int pa_inum, int new_inum);
 int init_file(int inum);
-int show();
-int get_itype(int inum);
-
-
+// open, close dir
 int open_dir(int inum);
+int change_dir(char *name);
+int close_dir(int inum);
+// show
+int show();
+
+
+
+
 char* get_namei();
 
 
-void usage();
+
 #endif
