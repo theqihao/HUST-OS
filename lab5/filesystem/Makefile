@@ -1,0 +1,16 @@
+CC = g++
+#CFLAGS = -O -Wall -g
+CFLAGS = -O -w -g
+OBJ = main.o myfile.o
+
+qihao: $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o qihao 
+
+myfile.o
+
+main.o:
+
+#clean
+.PHONY : clean
+clean: 
+	-rm -f *.o *~ qihao 

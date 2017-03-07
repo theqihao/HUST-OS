@@ -14,7 +14,8 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    myfile.cpp
+    myfile.cpp \
+    test.cpp
 
 HEADERS  += mainwindow.h \
     myfile.h

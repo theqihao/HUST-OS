@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <malloc.h>
+#include <vector>
 #include <iostream>
 
 using namespace std;
@@ -12,35 +14,51 @@ using namespace std;
 #define BlockNum 1024 * 80
 #define MaxPerInode 1024
 // begin address
-#define SuperBegin 0
-#define InodeBegin sizeof(SuperBlock)
-#define BlockBegin (InodeBegin + InodeNum * sizeof(Inode))
+#define SuperSeg 0
+#define InodeSeg sizeof(SuperBlock)
+#define BlockSeg (InodeSeg + InodeNum * sizeof(Inode))
 
 
 struct SuperBlock {
-    bool inode_map[INODE_NUM];
-    bool block_map[BLOCK_NUM];
+    bool inode_map[InodeNum];
+    bool block_map[BlockNum];
     int inode_used;
     int block_used;
 };
 
 struct Inode {
+    char name[64];
     int block_num;
-    int blocks[MAX_PER_INODE];
+    int blocks[MaxPerInode];
     int size;
     int type;
 };
 
-struct DIR {
+struct Dir {
     char name[64];
     int inode;
 };
 
-FILE *FS;
+FILE *fs;
+SuperBlock sb;
 
-int init_fs(void);
-int close_fs(void);
-void Hello();
+// cur
+Inode cur_inode;
+int cur_inum;
+char pwd[128];
+vector<Dir> cur_dirs;
+
+
+
+int init(void);
+int init_root();
+int open_dir(int inum);
+char* get_namei();
+
+
+
+
+
 
 
 #endif
