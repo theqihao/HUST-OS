@@ -1,17 +1,27 @@
 #include "myfile.h"
 #define CMD_NUM 3
 
-char* cmds[10] = {"ls", "touch", "mkdir"};
+// fs, sb
+FILE *fs;
+SuperBlock sb;
+// cur info
+Inode cur_inode;
+int cur_inum;
+char pwd[128];
+int cur_fnum;
+Dir cur_files[MaxPerDir];
+// input
+char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir"};
 char arg[32];
 char cmd[32];
 int op = 1;
 
 int main() {
-    Hello();
+    usage();
     init();
     while (1) {
         op = 100;
-        printf("\n%s$", pwd);
+        printf("\033[0;34m%s\033[0m$ ", pwd);
         scanf("%s", cmd);
         strcpy(arg, "unname");
         if (strcmp(cmd, "touch") == 0 || strcmp(cmd, "mkdir") == 0) {
@@ -25,40 +35,35 @@ int main() {
         }
         switch (op) {
         case 0:
-            printf("ls\n");
-
+            //printf("ls\n");
+            show();
             break;
         case 1:
-            printf("touch %s\n", arg);
+           // printf("touch %s\n", arg);
+            mkfile(cur_inum, arg, _FILE);
             break;
         case 2:
-            printf("mkdir\n");
+            //printf("mkdir\n");
+            mkfile(cur_inum, arg, _DIR);
             break;
         default:
-            printf("no this cmd\n");
+            printf("No command \'%s\' found\n", cmd);
             break;
         }
     }
+    end();
 }
-
 
 int init() {
     //  init filesystem
     fs = fopen("fs", "r+");
-  //  fseek(fs, BlockSeg, SEEK_SET);
-    // init sperblock
-  //  sb = (SuperBlock *)malloc(sizeof(SuperBlock));
-  //  memset(sb, 0, sizeof(SuperBlock));
-    // root dir
-//strcpy(pwd, "\/");
-    //pwd = "/ds";
+    //  fseek(fs, BlockSeg, SEEK_SET);
     strcpy(pwd, "/");
     cur_inum = 0;
-    /*
+
     if (open_dir(cur_inum) == -1) {
         init_root();
     }
-    */
     return 0;
 }
 
@@ -81,6 +86,10 @@ int init_root() {
     strcpy(dir.name, ".");
     cur_files[cur_fnum++] = dir;
     return 0;
+}
+
+int end() {
+    fclose(fs);
 }
 
 // inum : parent's inum
@@ -114,8 +123,21 @@ int init_file(int inum) {
 
 int show() {
     for (int i = 0; i < cur_fnum; i++) {
-
+        if (get_itype(cur_files[i].inum) == _DIR) {
+            // printf("%s\n", cur_files[i].name);
+            printf("\033[0;34m%s\033[0m\n", cur_files[i].name);
+        } else {
+            printf("%s\n", cur_files[i].name);
+        }
     }
+    return 0;
+}
+
+int get_itype(int inum) {
+    Inode inode;
+    fseek(fs, InodeSeg + (sizeof(Inode) * inum), SEEK_SET);
+    fread(&inode, sizeof(Inode), 1, fs);
+    return inode.type;
 }
 
 
@@ -161,25 +183,10 @@ char* get_namei(int inum) {
     */
 }
 
-
-void Hello() {
-    cout << "hello " << endl;
+void usage() {
+    // red
+    printf("\n\033[32;31mjust use it as linux shell\033[0m\n\n");
+    // blue
+    //printf("\n\033[0;34mjust use it as linux shell\033[0m\n");
+    // printf("\033[显示方式;前景色;背景色m输出字符串\033[0m/n");
 }
-
-
-
-
-
-/*
-#include "mainwindow.h"
-#include <QApplication>
-
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-
-    return a.exec();
-}
-*/

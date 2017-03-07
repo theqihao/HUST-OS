@@ -49,15 +49,7 @@ struct _Dir {
     int inum;
 };
 
-FILE *fs;
-SuperBlock sb;
 
-// cur
-Inode cur_inode;
-int cur_inum;
-char pwd[128];
-int cur_fnum;
-Dir cur_files[MaxPerDir];
 
 
 
