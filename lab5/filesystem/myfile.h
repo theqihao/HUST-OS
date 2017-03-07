@@ -1,5 +1,5 @@
-#ifndef __MYFILE_H_
-#define __MYFILE_H_
+#ifndef MYFILE_H
+#define MYFILE_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,8 +13,10 @@ using namespace std;
 // size
 #define InodeNum 1024
 #define BlockNum 1024 * 80
+#define BlockSize 1024
 #define MaxPerInode 1024
-// begin address
+#define MaxPerDir (BlockSize / sizeof(Dir))
+// begin address, segment
 #define SuperSeg 0
 #define InodeSeg sizeof(SuperBlock)
 #define BlockSeg (InodeSeg + InodeNum * sizeof(Inode))
@@ -43,24 +45,31 @@ struct _Inode {
 };
 
 struct _Dir {
-    char name[64];
+    char name[32];
     int inum;
 };
+
+FILE *fs;
+SuperBlock sb;
+
+// cur
+Inode cur_inode;
+int cur_inum;
+char pwd[128];
+int cur_fnum;
+Dir cur_files[MaxPerDir];
+
 
 
 
 // op
-int init(void);
+int init();
 int init_root();
 int mkfile(int pa_inum, char *name, int type);
 int get_inum();
 int init_dir(int pa_inum, int new_inum);
 int init_file(int inum);
-
-
-
-int ls();
-
+int show();
 
 
 
@@ -68,8 +77,8 @@ int open_dir(int inum);
 char* get_namei();
 
 
+
+
+
 void Hello();
-
-
-
 #endif
