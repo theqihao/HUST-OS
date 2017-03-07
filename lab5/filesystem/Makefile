@@ -6,9 +6,9 @@ OBJ = main.o myfile.o
 qihao: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o qihao 
 
-myfile.o
+myfile.o: myfile.h
 
-main.o:
+main.o: myfile.h
 
 #clean
 .PHONY : clean

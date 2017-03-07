@@ -1,8 +1,9 @@
-#ifndef MYFILE_H
-#define MYFILE_H
+#ifndef _MYFILE_H
+#define _MYFILE_H
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <malloc.h>
 #include <vector>
 #include <iostream>
@@ -18,15 +19,18 @@ using namespace std;
 #define InodeSeg sizeof(SuperBlock)
 #define BlockSeg (InodeSeg + InodeNum * sizeof(Inode))
 
+typedef struct _SuperBlock SuperBlock;
+typedef struct _Inode Inode;
+typedef struct _Dir Dir;
 
-struct SuperBlock {
+struct _SuperBlock {
     bool inode_map[InodeNum];
     bool block_map[BlockNum];
     int inode_used;
     int block_used;
 };
 
-struct Inode {
+struct _Inode {
     char name[64];
     int block_num;
     int blocks[MaxPerInode];
@@ -34,19 +38,11 @@ struct Inode {
     int type;
 };
 
-struct Dir {
+struct _Dir {
     char name[64];
     int inode;
 };
 
-FILE *fs;
-SuperBlock sb;
-
-// cur
-Inode cur_inode;
-int cur_inum;
-char pwd[128];
-vector<Dir> cur_dirs;
 
 
 
@@ -56,8 +52,7 @@ int open_dir(int inum);
 char* get_namei();
 
 
-
-
+void Hello();
 
 
 

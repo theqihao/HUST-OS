@@ -1,3 +1,12 @@
+#include "myfile.h"
+
+
+
+int main() {
+    Hello();
+}
+
+/*
 #include "mainwindow.h"
 #include <QApplication>
 
@@ -9,3 +18,4 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
+*/
