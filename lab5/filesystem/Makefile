@@ -6,7 +6,7 @@ OBJ =  main.o
 qihao: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o qihao 
 
-
+#myfile.o: myfile.h
 main.o: myfile.h
 
 #clean

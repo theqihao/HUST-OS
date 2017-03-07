@@ -1,14 +1,10 @@
-#ifndef MYFILE_H
-#define MYFILE_H
+#ifndef __MYFILE_H_
+#define __MYFILE_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
-#include <vector>
-#include <iostream>
-
-using namespace std;
 
 // size
 #define InodeNum 1024
@@ -49,10 +45,10 @@ struct _Dir {
     int inum;
 };
 
+// fs, sb
 FILE *fs;
 SuperBlock sb;
-
-// cur
+// cur info
 Inode cur_inode;
 int cur_inum;
 char pwd[128];
@@ -68,6 +64,7 @@ int init_root();
 int end();
 int mkfile(int pa_inum, char *name, int type);
 int get_inum();
+int get_bnum();
 int init_dir(int pa_inum, int new_inum);
 int init_file(int inum);
 int show();
@@ -76,9 +73,6 @@ int get_itype(int inum);
 
 int open_dir(int inum);
 char* get_namei();
-
-
-
 
 
 void usage();

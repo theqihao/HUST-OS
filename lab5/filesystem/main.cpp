@@ -1,15 +1,6 @@
 #include "myfile.h"
 #define CMD_NUM 3
 
-// fs, sb
-FILE *fs;
-SuperBlock sb;
-// cur info
-Inode cur_inode;
-int cur_inum;
-char pwd[128];
-int cur_fnum;
-Dir cur_files[MaxPerDir];
 // input
 char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir"};
 char arg[32];
@@ -107,7 +98,27 @@ int mkfile(int pa_inum, char *name, int type) {
 }
 
 int init_dir(int pa_inum, int new_inum) {
-
+    // init inode
+    Inode inode;
+    int bnum;
+    memset(inode.blocks, 0, sizeof(inode.blocks));
+    inode.type = _DIR;
+    inode.block_num = 1;
+    bnum = get_bnum();
+    inode.blocks[0] = bnum;
+    inode.size = 2 * sizeof(Dir);
+    // write . ..
+    Dir dir[2];
+    strcpy(dir[0].name, ".");
+    dir[0].inum = new_inum;
+    strcpy(dir[1].name, "..");
+    dir[1].inum = pa_inum;
+    fseek(fs, BlockSeg + (BlockSize * bnum), SEEK_SET);
+    fwrite(dir, sizeof(Dir), 2, fs);
+    // write new_inode
+    fseek(fs, InodeSeg + (sizeof(Inode) * new_inum), SEEK_SET);
+    fwrite(&inode, sizeof(Inode), 1, fs);
+    return 0;
 }
 
 int init_file(int inum) {
@@ -149,9 +160,25 @@ int get_inum() {
     }
     // get an inode num
     for (int i = 0; i < InodeNum; i++) {
-        if (sb.inode_map[i] == false) {
-            sb.inode_map[i] == true;
+        if (sb.inode_map[i] == 0) {
+            sb.inode_map[i] |= 1;
             sb.inode_used++;
+            return i;
+        }
+    }
+}
+
+int get_bnum() {
+    // check if used up
+    if (sb.block_used >= BlockNum) {
+        printf("block is used up\n");
+        return -1;
+    }
+    // get an block num
+    for (int i = 0; i < BlockNum; i++) {
+        if (sb.block_map[i] == 0) {
+            sb.block_map[i] |= 1;
+            sb.block_used++;
             return i;
         }
     }
