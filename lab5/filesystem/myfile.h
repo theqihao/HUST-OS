@@ -63,6 +63,7 @@ int init_root();
 int end();
 // create dir , file
 int mkfile(int pa_inum, char *name, int type);
+int same_name(char *name, int type);
 int get_itype(int inum);
 int get_inum();
 int get_bnum();
@@ -73,14 +74,12 @@ int open_dir(int inum);
 int iget_name(char *name);
 int change_dir(char *name);
 int close_dir(int inum);
+// open, write, read file
+int open_file(int inum);
+int close_file(int inum);
+
 // show
 int show();
-
-
-
-
-char* get_namei();
-
 
 
 #endif

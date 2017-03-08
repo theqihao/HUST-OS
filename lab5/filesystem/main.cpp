@@ -1,8 +1,8 @@
 #include "myfile.h"
-#define CMD_NUM 5
+#define CMD_NUM 7
 
 // input
-char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit"};
+char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit", "mkfs"};
 char arg[32];
 char cmd[32];
 int op = 1;
@@ -47,6 +47,10 @@ int main() {
             // exit
             close_dir(cur_inum);
             _exit = 1;
+            break;
+        case 5:
+            // mkfs
+            init_root();
             break;
         default:
             printf("file_num = %d\n", cur_fnum);
@@ -95,6 +99,7 @@ int init_root() {
     // write new_inode
     fseek(fs, InodeSeg, SEEK_SET);
     fwrite(&inode, sizeof(Inode), 1, fs);
+    cur_fnum = 0;
     cur_inode = inode;
     cur_inum = 0;
     cur_files[cur_fnum++] = dir;
@@ -107,6 +112,7 @@ int end() {
 
 // inum : parent's inum
 int mkfile(int pa_inum, char *name, int type) {
+    if (same_name(name, type) == -1) return -1;
     int new_inum = get_inum();
     if (type == _DIR) {
         init_dir(pa_inum, new_inum);
@@ -117,6 +123,17 @@ int mkfile(int pa_inum, char *name, int type) {
     strcpy(dir.name, name);
     dir.inum = new_inum;
     cur_files[cur_fnum++] = dir;
+    return 0;
+}
+
+int same_name(char *name, int type) {
+    for (int i = 0; i < cur_fnum; i++) {
+        if (strcmp(name, cur_files[i].name) == 0 && get_itype(cur_files[i].inum) == type) {
+            printf("file exists\n");
+            return -1;
+        }
+    }
+    return 0;
 }
 
 int init_dir(int pa_inum, int new_inum) {
@@ -156,8 +173,6 @@ int init_file(int inum) {
     fwrite(&inode, sizeof(Inode), 1, fs);
     return 0;
 }
-
-
 
 int get_itype(int inum) {
     Inode inode;
@@ -245,7 +260,10 @@ int change_dir(char *name) {
     // open new
     int inum = iget_name(name);
     if (inum == -1) return -1;
-    if (open_dir(inum) != 0) return -1;
+    if (open_dir(inum) != 0) {
+        printf("open file %s failed\n", name);
+        return -1;
+    }
     // father
     if (strcmp(name, "..") == 0) {
         int i = 0;
@@ -265,7 +283,6 @@ int change_dir(char *name) {
         if (old_inum != 0)  strcat(pwd, "/");
         strcat(pwd, name);
     }
-
     return 0;
 }
 
@@ -280,15 +297,14 @@ int close_dir(int inum) {
     return 0;
 }
 
-char* get_namei(int inum) {
-    /*Inode inode;
-    FILE *fp = fopen("fs", "r");
-    fseek(fs, InodeSeg + (inum * sizeof(Inode)), 0);
-    fread(&inode, sizeof(Inode), 1, fp);
-    fclose(fp);
-    return inode.name;
-    */
+int open_file(int inum) {
+
 }
+
+int close_file(int inum) {
+
+}
+
 
 int show() {
     int j = 0;
