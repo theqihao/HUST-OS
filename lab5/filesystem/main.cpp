@@ -1,8 +1,8 @@
 #include "myfile.h"
-#define CMD_NUM 7
+#define CMD_NUM 8
 
 // input
-char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit", "mkfs", "vim"};
+char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit", "mkfs", "vim", "map"};
 char arg[32];
 char cmd[32];
 int op = 1;
@@ -62,13 +62,18 @@ int main() {
             read_file(iget_name(arg));
             write_file(iget_name(arg));
             break;
+        case 7:
+            show_map();
+            break;
         default:
             printf("file_num = %d\n", cur_fnum);
             printf("inum = %d\n", cur_inum);
             printf("No command \'%s\' found\n", cmd);
             break;
         }
-        if (myexit == 1) break;
+        if (myexit == 1) {
+            break;
+        }
     }
     end();
 }
@@ -76,6 +81,7 @@ int main() {
 int init() {
     //  init filesystem
     fs = fopen("fs", "r+");
+    fread(&sb, sizeof(SuperBlock), 1, fs);
     //  fseek(fs, BlockSeg, SEEK_SET);
     strcpy(pwd, "/");
     cur_inum = 0;
@@ -117,6 +123,9 @@ int init_root() {
 }
 
 int end() {
+    close_dir(cur_inum);
+    fseek(fs, SuperSeg, SEEK_SET);
+    fwrite(&sb, sizeof(SuperBlock), 1, fs);
     fclose(fs);
 }
 
@@ -436,6 +445,18 @@ int show() {
     }
     printf("\n");
     return 0;
+}
+
+int show_map() {
+    printf("\n------------------------Inode map--------------------------\n");
+    for (int i = 0; i < 100; i++) {
+        printf("%d ", sb.inode_map[i]);
+    }
+    printf("\n------------------------Block map--------------------------\n");
+    for (int i = 0; i < 200; i++) {
+        printf("%d ", sb.block_map[i]);
+    }
+    printf("\n");
 }
 
 void usage() {

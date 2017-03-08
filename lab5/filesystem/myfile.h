@@ -84,6 +84,7 @@ int write_file(int inum);
 int del_file(int inum);
 // show
 int show();
+int show_map();
 
 
 #endif
