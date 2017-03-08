@@ -2,11 +2,11 @@
 #define CMD_NUM 7
 
 // input
-char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit", "mkfs"};
+char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit", "mkfs", "vim"};
 char arg[32];
 char cmd[32];
 int op = 1;
-int _exit = 0;
+int myexit = 0;
 
 int main() {
     usage();
@@ -17,7 +17,7 @@ int main() {
         scanf("%s", cmd);
         strcpy(arg, "unname");
         if (strcmp(cmd, "touch") == 0 || strcmp(cmd, "mkdir") == 0 || \
-            strcmp(cmd, "cd") == 0) {
+            strcmp(cmd, "cd") == 0 || strcmp(cmd, "vim") == 0) {
             scanf("%s", arg);
         }
         for (int i = 0; i < CMD_NUM; i++) {
@@ -46,11 +46,21 @@ int main() {
         case 4:
             // exit
             close_dir(cur_inum);
-            _exit = 1;
+            myexit = 1;
             break;
         case 5:
             // mkfs
             init_root();
+            break;
+        case 6:
+            // vim
+            printf("arg = %s, inode = %d\n", arg, iget_name(arg));
+            if (iget_name(arg) == -1) {
+                printf("%s not exists\n", arg);
+                //break;
+            }
+            read_file(iget_name(arg));
+            write_file(iget_name(arg));
             break;
         default:
             printf("file_num = %d\n", cur_fnum);
@@ -58,7 +68,7 @@ int main() {
             printf("No command \'%s\' found\n", cmd);
             break;
         }
-        if (_exit == 1) break;
+        if (myexit == 1) break;
     }
     end();
 }
@@ -188,7 +198,7 @@ int get_inum() {
         return -1;
     }
     // get an inode num
-    for (int i = 0; i < InodeNum; i++) {
+    for (int i = 1; i < InodeNum; i++) {
         if (sb.inode_map[i] == 0) {
             sb.inode_map[i] |= 1;
             sb.inode_used++;
@@ -204,7 +214,7 @@ int get_bnum() {
         return -1;
     }
     // get an block num
-    for (int i = 0; i < BlockNum; i++) {
+    for (int i = 1; i < BlockNum; i++) {
         if (sb.block_map[i] == 0) {
             sb.block_map[i] |= 1;
             sb.block_used++;
@@ -297,11 +307,112 @@ int close_dir(int inum) {
     return 0;
 }
 
-int open_file(int inum) {
+int read_file(int inum) {
+    // read inode
+    Inode inode;
+    fseek(fs, InodeSeg + (sizeof(Inode) * inum), SEEK_SET);
+    fread(&inode, sizeof(Inode), 1, fs);
+    // read blocks
+    FILE *fp = fopen("buf", "w+");
 
+    if (inode.block_num == 0) {
+        // show
+        printf("inode.block_num = 0\n");
+        fclose(fp);
+        system("vim buf");
+        return 0;
+    }
+
+    int offset = 0;
+    int i = 0;
+    for (i = 0; i < inode.block_num - 1; i++) {
+        fseek(fs, BlockSeg + (BlockSize * inode.blocks[i]), SEEK_SET);
+        fseek(fp, offset, SEEK_SET);
+        fread(BUF, BlockSize, 1, fs);
+        fwrite(BUF, BlockSize, 1, fp);
+        offset += BlockSize;
+    }
+    int size = inode.size - offset;
+    fseek(fs, BlockSeg + (BlockSize * inode.blocks[i]), SEEK_SET);
+    fseek(fp, offset, SEEK_SET);
+    fread(BUF, size, 1, fs);
+    fwrite(BUF, size, 1, fp);
+
+    /*
+    printf("read begin! size = %d, bnum = %d, b = %d\n", size, inode.block_num, inode.blocks[i]); //inode.blocks[i]);
+    char temp[100];
+    fseek(fs, BlockSeg + (BlockSize * inode.blocks[i]), SEEK_SET);
+    fread(temp, size, 1, fs);
+    printf("size = %d read temp = %s\n", size, temp);
+    */
+
+    // show
+    fclose(fp);
+    system("vim buf");
+    return 0;
 }
 
-int close_file(int inum) {
+int write_file(int inum) {
+    // read inode
+    Inode inode;
+    fseek(fs, InodeSeg + (sizeof(Inode) * inum), SEEK_SET);
+    fread(&inode, sizeof(Inode), 1, fs);
+    // get buf size
+    struct stat stbuf;
+    int fd = open("buf", O_RDONLY);
+    if (fd == -1) {
+        printf("open buf error\n");
+        return -1;
+    }
+    if ((fstat(fd, &stbuf) != 0) || (!S_ISREG(stbuf.st_mode))) {
+        printf("get buf info error or buf is not a file\n");
+        return 0;
+    }
+    inode.size = stbuf.st_size;
+    close(fd);
+    // write blocks
+    FILE *fp = fopen("buf", "r");
+
+    int max_bnum = inode.size / BlockSize;
+    int offset = 0;
+    int i;
+    for (i = 0; i < max_bnum; i++) {
+        if (i+1 > inode.block_num) {
+            inode.blocks[i] = get_bnum();
+            inode.block_num++;
+        }
+        fseek(fs, BlockSeg + (BlockSize * inode.blocks[i]), SEEK_SET);
+        fseek(fp, offset, SEEK_SET);
+        fread(BUF, BlockSize, 1, fp);
+        fwrite(BUF, BlockSize, 1, fs);
+        offset += BlockSize;
+    }
+    int size = inode.size - offset;
+    if (size != 0) {
+        if (i+1 > inode.block_num) {
+            inode.blocks[i] = get_bnum();
+            inode.block_num++;
+        }
+        // printf("write begin! size = %d, bnum = %d, b = %d\n", size, inode.block_num, inode.blocks[i]);
+        fseek(fs, BlockSeg + (BlockSize * inode.blocks[i]), SEEK_SET);
+        fseek(fp, offset, SEEK_SET);
+        fread(BUF, size, 1, fp);
+        fwrite(BUF, size, 1, fs);
+        /*
+        char temp[100];
+        fseek(fp, offset, SEEK_SET);
+        fread(temp, size, 1, fp);
+        printf(" write temp = %s\n", temp);
+        */
+    }
+    fclose(fp);
+    // write inode
+    fseek(fs, InodeSeg + (sizeof(Inode) * inum), SEEK_SET);
+    fwrite(&inode, sizeof(Inode), 1, fs);
+    return 0;
+}
+
+int del_file(int inum) {
 
 }
 

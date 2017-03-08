@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 // size
 #define InodeNum 1024
@@ -48,6 +51,7 @@ struct _Dir {
 // fs, sb
 FILE *fs;
 SuperBlock sb;
+char BUF[BlockSize];
 // cur info
 Inode cur_inode;
 int cur_inum;
@@ -75,9 +79,9 @@ int iget_name(char *name);
 int change_dir(char *name);
 int close_dir(int inum);
 // open, write, read file
-int open_file(int inum);
-int close_file(int inum);
-
+int read_file(int inum);
+int write_file(int inum);
+int del_file(int inum);
 // show
 int show();
 
