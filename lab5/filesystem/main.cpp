@@ -138,7 +138,7 @@ int mkfile(int pa_inum, char *name, int type) {
 
 int same_name(char *name, int type) {
     for (int i = 0; i < cur_fnum; i++) {
-        if (strcmp(name, cur_files[i].name) == 0 && get_itype(cur_files[i].inum) == type) {
+        if (strcmp(name, cur_files[i].name) == 0) {
             printf("file exists\n");
             return -1;
         }
@@ -229,6 +229,7 @@ int open_dir(int inum) {
     fread(&cur_inode, sizeof(Inode), 1, fs);
     // null
     if (cur_inode.block_num == 0) {
+        printf("cur_inode.block_num = 0\n\n");
         return -1;
     }
     // is a file
@@ -426,9 +427,11 @@ int show() {
         }
         if (get_itype(cur_files[i].inum) == _DIR) {
             // printf("%s\n", cur_files[i].name);
-            printf("\033[1;34m%-20s\033[0m", cur_files[i].name);
+            //printf("\033[1;34m%-20s\033[0m", cur_files[i].name);
+            printf("\033[1;34m%-15s %d\033[0m", cur_files[i].name, cur_files[i].inum);
         } else {
-            printf("%-20s", cur_files[i].name);
+            //printf("%-20s", cur_files[i].name);
+            printf("%-15s %d", cur_files[i].name, cur_files[i].inum);
         }
     }
     printf("\n");

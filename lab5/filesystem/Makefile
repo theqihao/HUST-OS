@@ -1,8 +1,8 @@
 CC = g++
 #CFLAGS = -O -Wall -g
 CFLAGS = -O -w -g
-OBJ =  main.o
-
+OBJ = main.o
+ 
 qihao: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o qihao 
 
