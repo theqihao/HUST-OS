@@ -61,7 +61,6 @@ Dir cur_files[MaxPerDir];
 
 
 // init, end
-void usage();
 int init();
 int init_root();
 int end();
@@ -81,10 +80,14 @@ int close_dir(int inum);
 // open, write, read file
 int read_file(int inum);
 int write_file(int inum);
-int del_file(int inum);
+// rm file, dir
+int rm_file(int inum);
+int rm_dir(int inum);
+int free_inum(int inum);
+int free_bnum(int bnum);
 // show
 int show();
 int show_map();
-
+void usage();
 
 #endif

@@ -1,12 +1,13 @@
 #include "myfile.h"
-#define CMD_NUM 8
+#define CMD_NUM 10
 
 // input
-char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit", "mkfs", "vim", "map"};
+char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit", "mkfs", "vim", "map", "rm", "rmdir"};
 char arg[32];
 char cmd[32];
 int op = 1;
 int myexit = 0;
+int temp;
 
 int main() {
     usage();
@@ -17,7 +18,8 @@ int main() {
         scanf("%s", cmd);
         strcpy(arg, "unname");
         if (strcmp(cmd, "touch") == 0 || strcmp(cmd, "mkdir") == 0 || \
-            strcmp(cmd, "cd") == 0 || strcmp(cmd, "vim") == 0) {
+            strcmp(cmd, "cd") == 0 || strcmp(cmd, "vim") == 0 || \
+            strcmp(cmd, "rm") == 0 || strcmp(cmd, "rmdir") == 0) {
             scanf("%s", arg);
         }
         for (int i = 0; i < CMD_NUM; i++) {
@@ -57,13 +59,25 @@ int main() {
             printf("arg = %s, inode = %d\n", arg, iget_name(arg));
             if (iget_name(arg) == -1) {
                 printf("%s not exists\n", arg);
-                //break;
+                break;
             }
             read_file(iget_name(arg));
             write_file(iget_name(arg));
             break;
         case 7:
+            // map
             show_map();
+            break;
+        case 8:
+            // rm
+            if (get_itype(iget_name(arg)) == _FILE) {
+                rm_file(iget_name(arg));
+            } else {
+                printf("not file or file not exist\n");
+            }
+            break;
+        case 9:
+            // rmdir
             break;
         default:
             printf("file_num = %d\n", cur_fnum);
@@ -119,6 +133,7 @@ int init_root() {
     cur_inode = inode;
     cur_inum = 0;
     cur_files[cur_fnum++] = dir;
+    change_dir(cur_files[0].name);
     return 0;
 }
 
@@ -422,7 +437,39 @@ int write_file(int inum) {
     return 0;
 }
 
-int del_file(int inum) {
+int free_inum(int inum) {
+    sb.inode_map[inum] = 0;
+    sb.inode_used--;
+    return 0;
+}
+
+int free_bnum(int bnum) {
+    sb.block_map[bnum] = 0;
+    sb.block_used--;
+    return 0;
+}
+
+int rm_file(int inum) {
+    Inode inode;
+    fseek(fs, InodeSeg + (sizeof(Inode) * inum), SEEK_SET);
+    fread(&inode, sizeof(Inode), 1, fs);
+    for (int i = 0; i < inode.block_num; i++) {
+        free_bnum(inode.blocks[i]);
+    }
+    free_inum(inum);
+    for (int i = 0; i < cur_fnum; i++) {
+        if (cur_files[i].inum == inum) {
+            for (int j = i; j < cur_fnum-1; j++) {
+                cur_files[j] = cur_files[j+1];
+            }
+            break;
+        }
+    }
+    cur_fnum--;
+    return 0;
+}
+
+int rm_dir(int inum) {
 
 }
 
@@ -448,7 +495,7 @@ int show() {
 }
 
 int show_map() {
-    printf("\n------------------------Inode map--------------------------\n");
+    printf("------------------------Inode map--------------------------\n");
     for (int i = 0; i < 100; i++) {
         printf("%d ", sb.inode_map[i]);
     }
