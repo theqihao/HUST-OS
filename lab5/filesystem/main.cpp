@@ -72,12 +72,19 @@ int main() {
             // rm
             if (get_itype(iget_name(arg)) == _FILE) {
                 rm_file(iget_name(arg));
+                rm_cur(iget_name(arg));
             } else {
                 printf("not file or file not exist\n");
             }
             break;
         case 9:
             // rmdir
+            if (get_itype(iget_name(arg)) == _DIR) {
+                rm_dir(iget_name(arg));
+                rm_cur(iget_name(arg));
+            } else {
+                printf("not dir or file not exist\n");
+            }
             break;
         default:
             printf("file_num = %d\n", cur_fnum);
@@ -457,6 +464,35 @@ int rm_file(int inum) {
         free_bnum(inode.blocks[i]);
     }
     free_inum(inum);
+    return 0;
+}
+
+int rm_dir(int inum) {
+    // free inode
+    Inode inode;
+    fseek(fs, InodeSeg + (sizeof(Inode) * inum), SEEK_SET);
+    fread(&inode, sizeof(Inode), 1, fs);
+    free_bnum(inode.blocks[0]);
+    free_inum(inum);
+    // free sub
+    fseek(fs, BlockSeg + (BlockSize * inode.blocks[0]), SEEK_SET);
+    //fread(BUF, sizeof(BlockSize), 1, fs);
+    Dir dir;
+    for (int i = 0; i < inode.size / sizeof(Dir); i++) {
+        fread(&dir, sizeof(Dir), 1, fs);
+        if (strcmp(dir.name, ".") == 0 || strcmp(dir.name, "..") == 0) {
+            continue;
+        }
+        if (get_itype(dir.inum) == _FILE) {
+            rm_file(dir.inum);
+        } else {
+            rm_dir(dir.inum);
+        }
+    }
+    return 0;
+}
+
+int rm_cur(int inum) {
     for (int i = 0; i < cur_fnum; i++) {
         if (cur_files[i].inum == inum) {
             for (int j = i; j < cur_fnum-1; j++) {
@@ -467,10 +503,6 @@ int rm_file(int inum) {
     }
     cur_fnum--;
     return 0;
-}
-
-int rm_dir(int inum) {
-
 }
 
 

@@ -83,6 +83,7 @@ int write_file(int inum);
 // rm file, dir
 int rm_file(int inum);
 int rm_dir(int inum);
+int rm_cur(int inum);
 int free_inum(int inum);
 int free_bnum(int bnum);
 // show
