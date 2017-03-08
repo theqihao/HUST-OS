@@ -87,8 +87,8 @@ int main() {
             }
             break;
         default:
-            printf("file_num = %d\n", cur_fnum);
-            printf("inum = %d\n", cur_inum);
+            //printf("file_num = %d\n", cur_fnum);
+            //printf("inum = %d\n", cur_inum);
             printf("No command \'%s\' found\n", cmd);
             break;
         }
@@ -515,11 +515,11 @@ int show() {
         }
         if (get_itype(cur_files[i].inum) == _DIR) {
             // printf("%s\n", cur_files[i].name);
-            //printf("\033[1;34m%-20s\033[0m", cur_files[i].name);
-            printf("\033[1;34m%-15s %d\033[0m", cur_files[i].name, cur_files[i].inum);
+            printf("\033[1;34m%-20s\033[0m", cur_files[i].name);
+            //printf("\033[1;34m%-15s %d\033[0m", cur_files[i].name, cur_files[i].inum);
         } else {
-            //printf("%-20s", cur_files[i].name);
-            printf("%-15s %d", cur_files[i].name, cur_files[i].inum);
+            printf("%-20s", cur_files[i].name);
+            //printf("%-15s %d", cur_files[i].name, cur_files[i].inum);
         }
     }
     printf("\n");
