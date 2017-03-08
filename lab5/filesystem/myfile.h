@@ -70,6 +70,7 @@ int init_dir(int pa_inum, int new_inum);
 int init_file(int inum);
 // open, close dir
 int open_dir(int inum);
+int iget_name(char *name);
 int change_dir(char *name);
 int close_dir(int inum);
 // show

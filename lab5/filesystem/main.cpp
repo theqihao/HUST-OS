@@ -28,32 +28,29 @@ int main() {
         }
         switch (op) {
         case 0:
-            //printf("ls\n");
+            // ls
             show();
             break;
         case 1:
-           // printf("touch %s\n", arg);
+            // touch
             mkfile(cur_inum, arg, _FILE);
             break;
         case 2:
-            //printf("mkdir\n");
+            // mkdir
             mkfile(cur_inum, arg, _DIR);
             break;
         case 3:
-            //printf("cd\n");
-            close_dir(cur_inum);
-            if (open_dir(arg) == 0) {
-
-            }
+            // cd
+            change_dir(arg);
             break;
         case 4:
-            //printf("exit\n");
-
+            // exit
             close_dir(cur_inum);
             _exit = 1;
             break;
         default:
-            printf("file_num = %d", cur_fnum);
+            printf("file_num = %d\n", cur_fnum);
+            printf("inum = %d\n", cur_inum);
             printf("No command \'%s\' found\n", cmd);
             break;
         }
@@ -143,6 +140,9 @@ int init_dir(int pa_inum, int new_inum) {
     // write new_inode
     fseek(fs, InodeSeg + (sizeof(Inode) * new_inum), SEEK_SET);
     fwrite(&inode, sizeof(Inode), 1, fs);
+    // write pa_inode
+    fseek(fs, InodeSeg + (sizeof(Inode) * pa_inum), SEEK_SET);
+    fwrite(&cur_inode, sizeof(Inode), 1, fs);
     return 0;
 }
 
@@ -157,23 +157,7 @@ int init_file(int inum) {
     return 0;
 }
 
-int show() {
-    int j = 0;
-    for (int i = 0; i < cur_fnum; i++) {
-        if (j++ == 4) {
-            j = 0;
-            printf("\n");
-        }
-        if (get_itype(cur_files[i].inum) == _DIR) {
-            // printf("%s\n", cur_files[i].name);
-            printf("\033[1;34m%-20s\033[0m", cur_files[i].name);
-        } else {
-            printf("%-20s", cur_files[i].name);
-        }
-    }
-    printf("\n");
-    return 0;
-}
+
 
 int get_itype(int inum) {
     Inode inode;
@@ -238,28 +222,50 @@ int open_dir(int inum) {
     return 0;
 }
 
+int iget_name(char *name) {
+    for (int i = 0; i < cur_fnum; i++) {
+        if (strcmp(name, cur_files[i].name) == 0) {
+            return cur_files[i].inum;
+        }
+    }
+    printf("no file : %s\n", name);
+    return -1;
+}
+
 int change_dir(char *name) {
+    int old_inum = cur_inum;
+    // save current
+    close_dir(cur_inum);
+
+    // change pwd[128]
     // current
     if (strcmp(name, ".") == 0) {
         return 0;
     }
+    // open new
+    int inum = iget_name(name);
+    if (inum == -1) return -1;
+    if (open_dir(inum) != 0) return -1;
     // father
     if (strcmp(name, "..") == 0) {
-        // change pwd[128]
         int i = 0;
         int pos = 0;
         char c;
         while (c = pwd[i++]) {
             if (c == '/') {
-                pos = i - 1;
+                pos = i-1;
             }
         }
         pwd[pos] = '\0';
+        if (pos == 0) {
+            strcpy(pwd, "/");
+        }
     } else {
         // add
-        strcat(pwd, "/");
+        if (old_inum != 0)  strcat(pwd, "/");
         strcat(pwd, name);
     }
+
     return 0;
 }
 
@@ -282,6 +288,24 @@ char* get_namei(int inum) {
     fclose(fp);
     return inode.name;
     */
+}
+
+int show() {
+    int j = 0;
+    for (int i = 0; i < cur_fnum; i++) {
+        if (j++ == 4) {
+            j = 0;
+            printf("\n");
+        }
+        if (get_itype(cur_files[i].inum) == _DIR) {
+            // printf("%s\n", cur_files[i].name);
+            printf("\033[1;34m%-20s\033[0m", cur_files[i].name);
+        } else {
+            printf("%-20s", cur_files[i].name);
+        }
+    }
+    printf("\n");
+    return 0;
 }
 
 void usage() {
