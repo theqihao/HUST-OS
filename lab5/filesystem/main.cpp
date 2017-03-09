@@ -543,9 +543,9 @@ int show_more() {
         fseek(fs, InodeSeg + (sizeof(Inode) * cur_files[i].inum), SEEK_SET);
         fread(&inode, sizeof(Inode), 1, fs);
         if (inode.type == _DIR) {
-            printf("frw\t");
-        } else {
             printf("drw\t");
+        } else {
+            printf("frw\t");
         }
         printf("%d\t", inode.block_num);
         printf("%d\t", inode.size);
