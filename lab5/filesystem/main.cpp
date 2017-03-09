@@ -56,7 +56,7 @@ int main() {
             break;
         case 6:
             // vim
-            printf("arg = %s, inode = %d\n", arg, iget_name(arg));
+            // printf("arg = %s, inode = %d\n", arg, iget_name(arg));
             if (iget_name(arg) == -1) {
                 printf("%s not exists\n", arg);
                 break;
@@ -89,8 +89,8 @@ int main() {
             }
             break;
         default:
-            printf("file_num = %d\n", cur_fnum);
-            printf("inum = %d\n", cur_inum);
+            // printf("file_num = %d\n", cur_fnum);
+            // printf("cur_inum = %d\n", cur_inum);
             printf("No command \'%s\' found\n", cmd);
             break;
         }
