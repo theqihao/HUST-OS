@@ -79,16 +79,18 @@ int main() {
             break;
         case 9:
             // rmdir
-            if (get_itype(iget_name(arg)) == _DIR) {
-                rm_dir(iget_name(arg));
-                rm_cur(iget_name(arg));
-            } else {
-                printf("not dir or file not exist\n");
+            if (iget_name(arg) != -1) {
+                if (get_itype(iget_name(arg)) == _DIR) {
+                    rm_dir(iget_name(arg));
+                    rm_cur(iget_name(arg));
+                } else {
+                    printf("not dir or file not exist\n");
+                }
             }
             break;
         default:
-            //printf("file_num = %d\n", cur_fnum);
-            //printf("inum = %d\n", cur_inum);
+            printf("file_num = %d\n", cur_fnum);
+            printf("inum = %d\n", cur_inum);
             printf("No command \'%s\' found\n", cmd);
             break;
         }
@@ -335,6 +337,7 @@ int close_dir(int inum) {
     // save inode
     fseek(fs, InodeSeg + (sizeof(Inode) * inum), SEEK_SET);
     cur_inode.size = cur_fnum * sizeof(Dir);
+    cur_inode.block_num = 1;
     fwrite(&cur_inode, sizeof(Inode), 1, fs);
     return 0;
 }
@@ -467,28 +470,30 @@ int rm_file(int inum) {
     return 0;
 }
 
+
+// use fseek before fread, otherwise fs is not right
 int rm_dir(int inum) {
     // free inode
     Inode inode;
     fseek(fs, InodeSeg + (sizeof(Inode) * inum), SEEK_SET);
     fread(&inode, sizeof(Inode), 1, fs);
-    free_bnum(inode.blocks[0]);
-    free_inum(inum);
     // free sub
-    fseek(fs, BlockSeg + (BlockSize * inode.blocks[0]), SEEK_SET);
-    //fread(BUF, sizeof(BlockSize), 1, fs);
     Dir dir;
     for (int i = 0; i < inode.size / sizeof(Dir); i++) {
+        fseek(fs, BlockSeg + (BlockSize * inode.blocks[0]) + (sizeof(Dir) * i), SEEK_SET);
         fread(&dir, sizeof(Dir), 1, fs);
         if (strcmp(dir.name, ".") == 0 || strcmp(dir.name, "..") == 0) {
             continue;
         }
+        // printf("rm %s, inum = %d\n", dir.name, dir.inum);
         if (get_itype(dir.inum) == _FILE) {
             rm_file(dir.inum);
         } else {
             rm_dir(dir.inum);
         }
     }
+    free_bnum(inode.blocks[0]);
+    free_inum(inum);
     return 0;
 }
 

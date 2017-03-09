@@ -21,8 +21,8 @@
 #define BlockSeg (InodeSeg + InodeNum * sizeof(Inode))
 // 1: mkdir
 // 0: touch
-#define _DIR 1
-#define _FILE 0
+#define _DIR 5
+#define _FILE 6
 
 // struct
 typedef struct _SuperBlock SuperBlock;
