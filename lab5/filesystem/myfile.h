@@ -88,6 +88,7 @@ int free_inum(int inum);
 int free_bnum(int bnum);
 // show
 int show();
+int show_more();
 int show_map();
 void usage();
 

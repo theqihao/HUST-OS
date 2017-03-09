@@ -1,8 +1,8 @@
 #include "myfile.h"
-#define CMD_NUM 10
+#define CMD_NUM 11
 
 // input
-char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit", "mkfs", "vim", "map", "rm", "rmdir"};
+char cmds[CMD_NUM][10] = {"ls", "touch", "mkdir", "cd", "exit", "mkfs", "vim", "map", "rm", "rmdir", "ll"};
 char arg[32];
 char cmd[32];
 int op = 1;
@@ -87,6 +87,10 @@ int main() {
                     printf("not dir or file not exist\n");
                 }
             }
+            break;
+        case 10:
+            // ll
+            show_more();
             break;
         default:
             // printf("file_num = %d\n", cur_fnum);
@@ -526,6 +530,37 @@ int show() {
             printf("%-20s", cur_files[i].name);
             //printf("%-15s %d", cur_files[i].name, cur_files[i].inum);
         }
+    }
+    printf("\n");
+    return 0;
+}
+
+int show_more() {
+    close_dir(cur_inum);
+    int j = 0;
+    for (int i = 0; i < cur_fnum; i++) {
+        Inode inode;
+        fseek(fs, InodeSeg + (sizeof(Inode) * cur_files[i].inum), SEEK_SET);
+        fread(&inode, sizeof(Inode), 1, fs);
+        if (inode.type == _DIR) {
+            printf("frw\t");
+        } else {
+            printf("drw\t");
+        }
+        printf("%d\t", inode.block_num);
+        printf("%d\t", inode.size);
+
+
+        if (get_itype(cur_files[i].inum) == _DIR) {
+            // printf("%s\n", cur_files[i].name);
+            printf("\033[1;34m%s\033[0m", cur_files[i].name);
+            //printf("\033[1;34m%-15s %d\033[0m", cur_files[i].name, cur_files[i].inum);
+        } else {
+            printf("%s", cur_files[i].name);
+            //printf("%-15s %d", cur_files[i].name, cur_files[i].inum);
+        }
+
+        printf("\n");
     }
     printf("\n");
     return 0;
