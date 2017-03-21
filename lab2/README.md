@@ -1,20 +1,11 @@
 https://www.kernel.org/
-1:linux
-2:patch
 apt-get install kernel-package build-essential libncurses5-dev fakeroot
-sudo apt-get install libssl-dev
-xz -d linux-4.5.tar.xz
-tar -xvf linux-4.5.tar
-
-把内核目录linux-4.5和补丁patch-4.5.xz都复制到/usr/src，然后进入/usr/src 
-cp linux-4.5 /usr/src –rf
-cp patch-4.5.xz /usr/src
+apt-get install libssl-dev build-essential
+xz -d linux-4.4.52.tar.xz
+tar -xvf linux-4.4.52.tar
+cp ./linux-4.4.52 /usr/src -rf
 cd /usr/src
 
-
-1.打内核补丁
-xz -d patch-4.5.xz | patch -p1
-执行后没有任何提示说明执行正确
 
 
 
@@ -29,30 +20,9 @@ xz -d patch-4.5.xz | patch -p1
 #make install -j8   //安装新的系统
 
 
-/*make clean && make dep bzImage modules modules_install*/
-/*make bzImage；make modules；make module_install; make install  */
+/*make bzImage；make modules；make modules_install; make install  */
 
 
-重启选用新内核，同启动管理相关
-update-grub
-reboot
-
-cat /proc/version
-
-
-
-
-
-
-
-// add syscall
-与系统调用相关的内核代码文件：
-系统调用服务例程
-	 如 arch/x86/kernel/sys.c
-系统调用清单（为每个系统调用分配唯一号码）
-    如 arch/x86/include/asm/unistd.h
-系统调用表
-	 如 arch/x86/kernel/syscall_table.s
 	 
 	 
 linux-4.4.52/arch/x86/entry/syscalls/syscall_64.tbl
@@ -118,26 +88,11 @@ asmlinkage long sys_qihao(char *dest, char *src)
 }
 
 
+重启选用新内核，同启动管理相关
+update-grub
+reboot
+
+cat /proc/version
 
 
 
-
-/usr/src/linux-4.4.52/arch/x86/include/generated/asm/syscalls_64.h:
-  309  __SYSCALL_COMMON(323, sys_userfaultfd, sys_userfaultfd)
-  310  __SYSCALL_COMMON(324, sys_membarrier, sys_membarrier)
-  311: __SYSCALL_COMMON(325, sys_mlock2, sys_mlock2)
-  312  __SYSCALL_X32(512, compat_sys_rt_sigaction, compat_sys_rt_sigaction)
-  313  __SYSCALL_X32(513, stub_x32_rt_sigreturn, stub_x32_rt_sigreturn)
-  
-  
-  
-  
-  
-  
-  
-  
-  
-/usr/src/linux-4.4.52/arch/x86/include/generated/uapi/asm/unistd_64.h:
-  327  #define __NR_userfaultfd 323
-  328  #define __NR_membarrier 324
-  329: #define __NR_mlock2 325
