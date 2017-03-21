@@ -18,12 +18,13 @@ struct _CPU {
     char name[10];		// name
     // begin computer to now
     unsigned int user;	// user status time
-    unsigned int nice;	// nice间
+    // nice值为负的进程所占用的CPU时间, 优先级最高，多分配的
+    unsigned int nice;	// nice 改变过优先级的进程的占用CPU的百分比
     unsigned int system;// system status time
     unsigned int idle;	// wait time expect IO
     unsigned int iowait;// wait IO
-    unsigned int irq;	// handware interupt时间
-    unsigned int softirq; // soft interupt时
+    unsigned int irq;	// handware interupt
+    unsigned int softirq; // soft interupt
 };
 
 namespace Ui {
