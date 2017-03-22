@@ -42,7 +42,7 @@ void MainWindow::addProcess() {
     model->setHorizontalHeaderItem(i++, new QStandardItem(QString("State")));
     model->setHorizontalHeaderItem(i++, new QStandardItem(QString("PID")));
     model->setHorizontalHeaderItem(i++, new QStandardItem(QString("PPID")));
-    model->setHorizontalHeaderItem(i++, new QStandardItem(QString("%CPU")));
+   // model->setHorizontalHeaderItem(i++, new QStandardItem(QString("%CPU")));
     model->setHorizontalHeaderItem(i++, new QStandardItem(QString("Memory (kB)")));
     model->setHorizontalHeaderItem(i++, new QStandardItem(QString("Priority")));
 
@@ -52,13 +52,13 @@ void MainWindow::addProcess() {
     // column width
     i = 0;
     tv->setColumnWidth(i++,200);
-    tv->setColumnWidth(i++,100);
-    tv->setColumnWidth(i++,100);
-    tv->setColumnWidth(i++,100);
-    tv->setColumnWidth(i++,100);
-    tv->setColumnWidth(i++,100);
+    tv->setColumnWidth(i++,120);
+    tv->setColumnWidth(i++,120);
+    tv->setColumnWidth(i++,120);
+    //tv->setColumnWidth(i++,100);
+    tv->setColumnWidth(i++,120);
     tv->setColumnWidth(i++,150);
-    tv->setColumnWidth(i++,100);
+    tv->setColumnWidth(i++,120);
 
     // set
     tv->setMouseTracking(true);
@@ -214,7 +214,7 @@ void MainWindow::showProcessInfo() {
             model->setItem(row, j++, new QStandardItem(QString(list[i].state)));
             model->setItem(row, j++, new QStandardItem(QString::number(list[i].pid)));
             model->setItem(row, j++, new QStandardItem(QString::number(list[i].ppid)));
-            model->setItem(row, j++, new QStandardItem(QString::number(list[i].cpu)));
+            //model->setItem(row, j++, new QStandardItem(QString::number(list[i].cpu)));
             model->setItem(row, j++, new QStandardItem(QString::number(list[i].mem)));
             model->setItem(row, j++, new QStandardItem(QString::number(list[i].pri)));
         } else {
@@ -227,7 +227,7 @@ void MainWindow::showProcessInfo() {
                 model->setItem(ret, j++, new QStandardItem(QString(show_list[ret].state)));
                 model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].pid)));
                 model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].ppid)));
-                model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].cpu)));
+                //model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].cpu)));
                 model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].mem)));
                 model->setItem(ret, j++, new QStandardItem(QString::number(show_list[ret].pri)));
             }
@@ -371,21 +371,25 @@ void MainWindow::addBasicInfo() {
     fscanf(fp, "%d", &size);
     sprintf(temp, "\tMemory       :   %.1lfGiB\n\n", 1.0 * size / 1024 / 1024);
     final += QString(temp);
+    pclose(fp);
     // version issue
     fp = fopen("/etc/issue", "r");
     if (fp == NULL) cout << "open issue error" << endl;
     fread(buf, sizeof(buf), 1, fp);
     sprintf(temp, "\tIssue ver    :   %.18s\n\n", buf);
     final += QString(temp);
+    fclose(fp);
 
     // version info
     fp = popen("cat /proc/version", "r");
     if (fp == NULL) cout << "open version error" << endl;
+    memset(buf, 0, sizeof(buf));
     fread(buf, sizeof(buf), 1, fp);
     sprintf(temp, "\tKernel ver   :   %.20s\n\n", buf);
     final += QString(temp);
     // OS type
     memset(buf, 0, sizeof(buf));
+    pclose(fp);
     fp = popen("uname -m", "r");
     if (fp == NULL) cout << "uname -m error" << endl;
     fread(buf, sizeof(buf), 1, fp);
