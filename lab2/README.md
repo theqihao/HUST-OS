@@ -16,9 +16,7 @@ cd /usr/src
 
 
 以root身份进入/usr/src/linux目录，重建内核
-
 #make mrproper //清除之前编译信息，避免生成的文件不一致
-
 #make oldconfig //配置内核与当前配置相同
 	make config              基于文本的传统配置界面
 	make menuconfig    基于文本的菜单形式，字符终端下使用
@@ -34,17 +32,19 @@ cd /usr/src
 	 
 	 
 linux-4.4.52/arch/x86/entry/syscalls/syscall_64.tbl
+
 666 common	qihao			sys_qihao
+
 linux-4.4.52/include/linux/syscalls.h
+
 #ifndef sys_qihao
 asmlinkage long sys_qihao(char *dest, char *src);
 #endif
+
 linux-4.4.52/kernel/sys.c
-/*
-code
-*/
 
 /*
+'
 void copy(char* dest, char* src) {
     FILE* fi = fopen(src, "r");
     FILE* fo = fopen(dest, "w");
@@ -64,10 +64,10 @@ void copy(char* dest, char* src) {
     fclose(fi);
     fclose(fo);
 }
-
+'
 */
 
-
+'
 asmlinkage long sys_qihao(char *dest, char *src)
 {
 	printk("Hello qihao\n");
@@ -94,7 +94,7 @@ asmlinkage long sys_qihao(char *dest, char *src)
 	set_fs(old_fs);
 	return 0;
 }
-
+'
 
 重启选用新内核，同启动管理相关
 update-grub
