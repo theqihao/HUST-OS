@@ -1,16 +1,24 @@
 'https://www.kernel.org/'
+
 apt-get install kernel-package build-essential libncurses5-dev fakeroot
+
 apt-get install libssl-dev build-essential
+
 xz -d linux-4.4.52.tar.xz
+
 tar -xvf linux-4.4.52.tar
+
 cp ./linux-4.4.52 /usr/src -rf
+
 cd /usr/src
 
 
 
 
 以root身份进入/usr/src/linux目录，重建内核
+
 #make mrproper //清除之前编译信息，避免生成的文件不一致
+
 #make oldconfig //配置内核与当前配置相同
 	make config              基于文本的传统配置界面
 	make menuconfig    基于文本的菜单形式，字符终端下使用
