@@ -19,8 +19,7 @@
 * /*make bzImage；make modules；make modules_install; make install  */
 	
 # 添加代码
-* linux-4.4.52/arch/x86/entry/syscalls/syscall_64.tbl
-'''666 common	qihao			sys_qihao'''
+* linux-4.4.52/arch/x86/entry/syscalls/syscall_64.tbl ''666 common	qihao			sys_qihao''
 * linux-4.4.52/include/linux/syscalls.h
 - **
 #ifndef sys_qihao
