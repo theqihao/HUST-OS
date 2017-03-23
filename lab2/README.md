@@ -20,7 +20,7 @@
 	
 # 添加代码
 * linux-4.4.52/arch/x86/entry/syscalls/syscall_64.tbl
-- **666 common	qihao			sys_qihao**
+'''666 common	qihao			sys_qihao'''
 * linux-4.4.52/include/linux/syscalls.h
 - **
 #ifndef sys_qihao
@@ -29,7 +29,6 @@ asmlinkage long sys_qihao(char *dest, char *src);
 **
 * linux-4.4.52/kernel/sys.c
 - **
-/*
 void copy(char* dest, char* src) {
     FILE* fi = fopen(src, "r");
     FILE* fo = fopen(dest, "w");
@@ -49,8 +48,6 @@ void copy(char* dest, char* src) {
     fclose(fi);
     fclose(fo);
 }
-'
-*/
 asmlinkage long sys_qihao(char *dest, char *src)
 {
 	printk("Hello qihao\n");
