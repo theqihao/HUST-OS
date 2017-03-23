@@ -1,12 +1,12 @@
 # 文件说明
-驱动程序：qihao.h qihao.c
-测试程序：test.c
+* 驱动程序：qihao.h qihao.c
+* 测试程序：test.c
 
 # 具体使用
-生成模块：./add
-测试：make test
-执行:./qih
-清理:make clean
+* 生成模块：./add
+* 测试：make test
+* 执行:./qih
+* 清理:make clean
 
 # Makefile
 KERNELRELEASE是在内核源码的顶层Makefile中定义的一个变量，在第一次读取执行此Makefile时，KERNELRELEASE没有被定义，
@@ -15,15 +15,15 @@ KERNELRELEASE是在内核源码的顶层Makefile中定义的一个变量，在�
 当从内核源码目录返回时，KERNELRELEASE已被定义，make将继续读取else之前的内容。else之前的内容为kbuild语法的语句，指明模块源码中各文件的依赖关系，以及要生成的目标模块名。obj-m := param.o表示编译连接后将生成param.o模块。
 
 # 操作
-rmmod qihao
-rm /dev/qihao*
-make clean
-make
-insmod qihao.ko
-mknod /dev/qihao0 c 333 0
+* rmmod qihao
+* rm /dev/qihao*
+* make clean
+* make
+* insmod qihao.ko
+* mknod /dev/qihao0 c 333 0
 
 # check
-cat /proc/devices  | grep "qihao"
+* cat /proc/devices  | grep "qihao"
 
 # debug
-dmesg:查看内核输出
+* dmesg:查看内核输出
